@@ -13,8 +13,76 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 | [Speak Latin](pronunciation.html) | ✅ Live | Hear Caesar, Cicero, Finnish radio, and the Vatican. Record yourself and compare. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
 | Latin Roots & Derivatives | Coming soon | Explore how Latin roots became half of English. |
+| Latin World Map | Coming soon | Interactive map of the Roman Empire and modern Romance language regions. |
 
 See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) for the project roadmap.
+
+---
+
+## Speak Latin — What Works Now
+
+**[pronunciation.html](pronunciation.html)** is the working demo built for the first meeting. Here's what it does and what's on the roadmap.
+
+### Working features
+
+**Four characters across two eras**
+- Julius Caesar (100–44 BCE) and Cicero (106–43 BCE) represent classical Latin
+- Nuntii Latini (Finnish Latin Radio, 1989–2019) and the Vatican show Latin as a living institution
+- Each character has a distinct TTS voice profile (pitch and rate tuned per character)
+
+**Real portrait images**
+- On page load, the app fetches public-domain photos from Wikipedia — actual Roman bust photographs for Caesar and Cicero
+- SVG avatar silhouette shows as fallback if offline
+
+**Animated talking head**
+- The avatar's mouth opens and closes in sync while audio is playing
+- Works with both TTS and instructor recordings
+
+**Word → phrase progression**
+- Each character has three items: a single vocabulary word, a short phrase, and a famous sentence
+- Navigate with arrows; progress dots show position
+
+**Pronunciation guide**
+- Every item shows a phonetic transcription (e.g., *WAY-nee, WEE-dee, WEE-kee*) and a plain-English note explaining the key rule at work
+- Expandable classical pronunciation reference panel at the bottom
+
+**Record yourself & play back**
+- Students record themselves saying the Latin, then immediately play it back to compare with the model
+- Uses the browser's MediaRecorder API — no server, no upload
+
+**TTS voice quality**
+- Uses Italian (`it`) as the base language rather than Latin (`la`), which has no browser support and sounds terrible
+- Italian vowels and consonants are the closest living match to classical Latin
+- Scans available system voices and prefers local Italian, then any Italian, then Spanish, then French
+
+**Instructor Mode**
+- Click "Instructor Mode" in the nav bar — no password, just a toggle
+- Record your own voice for any phrase; saved to the browser's localStorage
+- Students hear the instructor's recording instead of TTS when one exists
+- Preview and clear recordings per phrase
+- Green status indicator shows which phrases have been recorded
+
+---
+
+### What we'd likely add next
+
+**Export/import instructor recordings**
+Currently recordings live in the browser that made them. A "Download recordings" button would export all saved audio as a JSON file; "Load recordings" would import it. Students on any device could then hear the instructor's voice.
+
+**More characters**
+Virgil, Seneca, Ovid for the ancient wing. Reginald Foster ("the Pope's Latinist," legendary for teaching spoken Latin) and a Paideia Institute student for the modern wing. Each adds new vocabulary and a new voice profile.
+
+**Classical vs. ecclesiastical pronunciation toggle**
+The Vatican character naturally demonstrates ecclesiastical Latin (C before E/I = "ch," V = "v"). A side-by-side toggle showing the same phrase in both traditions would be a powerful teaching moment.
+
+**Coaching arc: word → phrase → conversation**
+The current app is Phase 1 (pronunciation drill). Phase 2 would be a scripted conversation with an avatar — the character greets you, uses vocabulary you've drilled, waits for your response. Phase 3 could use the Claude API for open-ended Latin dialogue.
+
+**Speech recognition for student responses**
+The Web Speech API can do keyword-level recognition in Chrome. A future version could listen for the student's attempt and confirm whether key sounds were present — not grading, just flagging "heard 'veni'? yes/no."
+
+**World map**
+An interactive choropleth showing the Roman Empire at its peak overlaid with modern Romance-language regions. Hover a province to see its Latin name, a famous speaker from there, and a sample phrase. Toggle to see where Latin's descendants are spoken today.
 
 ---
 
