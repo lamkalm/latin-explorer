@@ -161,6 +161,41 @@
     .rule-key { font-size: .8em; font-weight: 700; font-family: 'Georgia', serif; margin-bottom: 2px; }
     .rule-val { font-size: .78em; color: #6e6e73; line-height: 1.4; }
 
+    /* ── Avatar image ── */
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+    /* ── Instructor mode ── */
+    .instr-toggle {
+      margin-left: auto; font-size: .75em; padding: 5px 11px;
+      border-radius: 6px; border: 1.5px solid #e5e5ea;
+      background: white; cursor: pointer; color: #6e6e73;
+      transition: all .15s; white-space: nowrap;
+    }
+    .instr-toggle:hover { background: #f5f5f7; }
+    .instr-toggle.on { background: #1a4a8b; color: white; border-color: #1a4a8b; }
+
+    .instr-banner {
+      display: none; background: #1a4a8b; color: white;
+      text-align: center; font-size: .82em; padding: 7px; font-weight: 600;
+      letter-spacing: .02em;
+    }
+    body.instructor-mode .instr-banner { display: block; }
+
+    .instr-controls {
+      display: none; margin-top: 12px; padding: 12px 14px;
+      background: #eef2fb; border-radius: 10px;
+      border: 1.5px solid #c0cce8;
+    }
+    body.instructor-mode .instr-controls { display: block; }
+    .instr-label {
+      font-size: .69em; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #1a4a8b; margin-bottom: 6px;
+    }
+    .instr-status {
+      font-size: .8em; color: #6e6e73; margin-bottom: 8px; min-height: 18px;
+    }
+    .instr-has-rec .instr-status { color: #1a8b4a; }
+
     /* ── Responsive ── */
     @media (max-width: 560px) {
       .stage { grid-template-columns: 1fr; gap: 20px; }
@@ -180,7 +215,9 @@
   <a href="index.html">Latin Explorer</a>
   <span class="sep">›</span>
   <span class="cur">Speak Latin</span>
+  <button class="instr-toggle" id="instrToggle">Instructor Mode</button>
 </nav>
+<div class="instr-banner">Instructor Mode — your recordings will be heard by students instead of TTS</div>
 
 <div class="page-header">
   <h1>Speak Latin</h1>
@@ -228,6 +265,16 @@
         <button class="btn btn-secondary" id="recordBtn">&#127897; Record yourself</button>
         <button class="btn btn-secondary" id="playBtn" disabled>&#9654; Play back</button>
       </div>
+      <!-- Instructor-only recording panel -->
+      <div class="instr-controls" id="instrControls">
+        <div class="instr-label">&#127897; Instructor Recording</div>
+        <div class="instr-status" id="instrStatus">No recording yet for this phrase.</div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="instrRecBtn">&#127897; Record for students</button>
+          <button class="btn btn-secondary" id="instrPreviewBtn" disabled>&#9654; Preview</button>
+          <button class="btn btn-secondary" id="instrClearBtn" disabled style="flex:0;padding:12px 14px;">&#128465;</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -258,6 +305,7 @@ const CHARS = [
     id: 'caesar', era: 'ancient',
     name: 'Julius Caesar', short: 'Caesar',
     dates: '100–44 BCE', tagline: 'Dictator of Rome',
+    wiki: 'Julius_Caesar',
     color: '#8b1a1a', faint: '#fdf0f0',
     skin: '#c8956c', hair: '#5a2800', robe: '#8b1a1a',
     voice: { pitch: 0.82, rate: 0.85 },
@@ -279,6 +327,7 @@ const CHARS = [
     id: 'cicero', era: 'ancient',
     name: 'Marcus Tullius Cicero', short: 'Cicero',
     dates: '106–43 BCE', tagline: "Rome's Greatest Orator",
+    wiki: 'Cicero',
     color: '#1a4a8b', faint: '#eef2fb',
     skin: '#c8956c', hair: '#4a2800', robe: '#1a4a8b',
     voice: { pitch: 1.1, rate: 1.0 },
@@ -300,6 +349,7 @@ const CHARS = [
     id: 'nuntii', era: 'modern',
     name: 'Nuntii Latini', short: 'Nuntii Latini',
     dates: '1989–2019', tagline: 'Finnish Latin Radio News',
+    wiki: 'Nuntii_Latini',
     color: '#1a6b4a', faint: '#edf7f3',
     skin: '#f0c898', hair: '#3a2800', robe: '#2a2a2a',
     voice: { pitch: 1.05, rate: 1.05 },
@@ -322,6 +372,7 @@ const CHARS = [
     id: 'vatican', era: 'modern',
     name: 'The Vatican', short: 'The Vatican',
     dates: '27 BCE – present', tagline: 'Latin as Official Language',
+    wiki: 'Holy_See',
     color: '#7a5010', faint: '#faf4e8',
     skin: '#e8c08a', hair: '#2a1800', robe: '#f8f8f0',
     voice: { pitch: 0.88, rate: 0.80 },
@@ -450,7 +501,12 @@ function renderCards() {
 
 function renderAvatar() {
   const ch = CHARS[activeChar];
-  avatarWrap.innerHTML = buildAvatar(ch);
+  const imgSrc = imgCache[ch.id];
+  if (imgSrc) {
+    avatarWrap.innerHTML = `<img src="${imgSrc}" alt="${ch.name}">`;
+  } else {
+    avatarWrap.innerHTML = buildAvatar(ch);
+  }
   charName.textContent = ch.name;
   charSub.textContent = `${ch.dates} · ${ch.tagline}`;
 }
@@ -471,6 +527,7 @@ function renderItem() {
   hearBtn.style.background = ch.color;
   setStatus('');
   resetRecorder();
+  renderInstrStatus();
 }
 
 function renderAll() {
@@ -520,14 +577,27 @@ if (window.speechSynthesis) {
 }
 
 hearBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  const it = ch.items[activeItem];
+
+  // Prefer instructor recording over TTS when one exists
+  const instrAudio = instrGet(ch.id, activeItem);
+  if (instrAudio) {
+    const a = new Audio(instrAudio);
+    hearBtn.disabled = true;
+    setStatus(`Playing ${ch.short}'s recorded voice…`);
+    startMouth();
+    a.play();
+    a.onended = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
+    return;
+  }
+
   if (!window.speechSynthesis) {
     setStatus('Speech not supported — try Chrome or Edge.');
     return;
   }
   window.speechSynthesis.cancel();
   stopMouth();
-  const ch = CHARS[activeChar];
-  const it = ch.items[activeItem];
 
   const voice = cachedVoice || pickVoice();
   const u = new SpeechSynthesisUtterance(it.latin);
@@ -600,8 +670,112 @@ function resetRecorder() {
 
 function setStatus(msg) { statusMsg.textContent = msg; }
 
+// ── Wikipedia image fetching ──────────────────────────────────────────────────
+const imgCache = {};
+
+async function fetchWikiImages() {
+  for (const ch of CHARS) {
+    if (!ch.wiki) continue;
+    try {
+      const res = await fetch(
+        'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(ch.wiki)
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.thumbnail?.source) imgCache[ch.id] = data.thumbnail.source;
+    } catch { /* offline — SVG fallback stays */ }
+  }
+  renderAvatar(); // swap in real photos once loaded
+}
+
+// ── Instructor mode ───────────────────────────────────────────────────────────
+const instrToggle   = document.getElementById('instrToggle');
+const instrRecBtn   = document.getElementById('instrRecBtn');
+const instrPreviewBtn = document.getElementById('instrPreviewBtn');
+const instrClearBtn = document.getElementById('instrClearBtn');
+const instrStatus   = document.getElementById('instrStatus');
+
+let instrRecording = false;
+let instrRecorder  = null;
+let instrChunks    = [];
+let instrStream    = null;
+
+function instrKey(charId, idx) { return `latin-instr-${charId}-${idx}`; }
+function instrGet(charId, idx) { return localStorage.getItem(instrKey(charId, idx)); }
+
+function renderInstrStatus() {
+  const ch = CHARS[activeChar];
+  const has = !!instrGet(ch.id, activeItem);
+  instrStatus.textContent = has
+    ? `Recording saved — students will hear your voice for "${ch.items[activeItem].latin}"`
+    : `No recording yet. Record your voice for students.`;
+  instrStatus.parentElement.classList.toggle('instr-has-rec', has);
+  instrPreviewBtn.disabled = !has;
+  instrClearBtn.disabled = !has;
+}
+
+instrToggle.addEventListener('click', () => {
+  document.body.classList.toggle('instructor-mode');
+  instrToggle.classList.toggle('on');
+  instrToggle.textContent = document.body.classList.contains('instructor-mode')
+    ? 'Exit Instructor Mode' : 'Instructor Mode';
+  renderInstrStatus();
+});
+
+instrRecBtn.addEventListener('click', async () => {
+  if (instrRecording) {
+    instrRecorder.stop();
+    instrRecording = false;
+    instrRecBtn.textContent = '\u{1F3A7} Record for students';
+    instrRecBtn.classList.remove('recording');
+    return;
+  }
+  try {
+    instrStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch {
+    instrStatus.textContent = 'Microphone access denied.';
+    return;
+  }
+  instrChunks = [];
+  instrRecorder = new MediaRecorder(instrStream);
+  instrRecorder.ondataavailable = e => { if (e.data.size > 0) instrChunks.push(e.data); };
+  instrRecorder.onstop = () => {
+    instrStream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(instrChunks, { type: 'audio/webm' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const ch = CHARS[activeChar];
+      localStorage.setItem(instrKey(ch.id, activeItem), reader.result);
+      renderInstrStatus();
+    };
+    reader.readAsDataURL(blob);
+  };
+  instrRecorder.start();
+  instrRecording = true;
+  instrRecBtn.textContent = '\u23F9 Stop recording';
+  instrRecBtn.classList.add('recording');
+  instrStatus.textContent = 'Recording… speak clearly, then press Stop.';
+});
+
+instrPreviewBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  const dataURL = instrGet(ch.id, activeItem);
+  if (!dataURL) return;
+  const a = new Audio(dataURL);
+  a.play();
+  instrStatus.textContent = 'Playing preview…';
+  a.onended = () => renderInstrStatus();
+});
+
+instrClearBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  localStorage.removeItem(instrKey(ch.id, activeItem));
+  renderInstrStatus();
+});
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 renderAll();
+fetchWikiImages();
 </script>
 </body>
 </html>
