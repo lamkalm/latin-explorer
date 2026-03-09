@@ -496,6 +496,29 @@ nextBtn.onclick = () => {
 };
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
+
+// Pick the best available voice for Latin. Italian is phonetically closest —
+// vowels are almost identical, consonants mostly right. Fall back to Spanish,
+// then French, then whatever the browser offers.
+function pickVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  return (
+    voices.find(v => v.lang.startsWith('it') && v.localService) ||
+    voices.find(v => v.lang.startsWith('it')) ||
+    voices.find(v => v.lang.startsWith('es') && v.localService) ||
+    voices.find(v => v.lang.startsWith('es')) ||
+    voices.find(v => v.lang.startsWith('fr')) ||
+    null
+  );
+}
+
+// Voices load asynchronously — cache after first load
+let cachedVoice = null;
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { cachedVoice = pickVoice(); };
+}
+
 hearBtn.addEventListener('click', () => {
   if (!window.speechSynthesis) {
     setStatus('Speech not supported — try Chrome or Edge.');
@@ -506,21 +529,16 @@ hearBtn.addEventListener('click', () => {
   const ch = CHARS[activeChar];
   const it = ch.items[activeItem];
 
-  function speak(lang) {
-    const u = new SpeechSynthesisUtterance(it.latin);
-    u.lang = lang;
-    u.pitch = ch.voice.pitch;
-    u.rate = ch.voice.rate;
-    u.onstart = () => { hearBtn.disabled = true; setStatus(`${ch.short} is speaking…`); startMouth(); };
-    u.onend   = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
-    u.onerror = () => {
-      stopMouth();
-      if (lang === 'la') { speak('en-US'); return; }
-      hearBtn.disabled = false; setStatus('');
-    };
-    window.speechSynthesis.speak(u);
-  }
-  speak('la');
+  const voice = cachedVoice || pickVoice();
+  const u = new SpeechSynthesisUtterance(it.latin);
+  if (voice) { u.voice = voice; u.lang = voice.lang; }
+  else { u.lang = 'it'; }
+  u.pitch = ch.voice.pitch;
+  u.rate  = ch.voice.rate;
+  u.onstart = () => { hearBtn.disabled = true; setStatus(`${ch.short} is speaking…`); startMouth(); };
+  u.onend   = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
+  u.onerror = () => { stopMouth(); hearBtn.disabled = false; setStatus(''); };
+  window.speechSynthesis.speak(u);
 });
 
 // ── Recording ─────────────────────────────────────────────────────────────────
