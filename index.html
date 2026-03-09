@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latin Explorer — TCE 265</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+      padding: 72px 24px 96px;
+    }
+
+    /* ── Header ── */
+    header {
+      max-width: 680px;
+      margin: 0 auto 80px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.4em;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+      color: #1d1d1f;
+    }
+
+    header p {
+      font-size: 1em;
+      color: #6e6e73;
+      line-height: 1.75;
+    }
+
+    /* ── Sketch rows ── */
+    .sketch-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .sketch-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 28px;
+      align-items: start;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 12px;
+      padding: 20px;
+      transition: background .15s;
+    }
+
+    .sketch-row:hover {
+      background: #f5f5f7;
+    }
+
+    .sketch-row.placeholder {
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .thumbnail {
+      width: 160px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .thumbnail canvas, .thumbnail svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sketch-info h2 {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .sketch-info p {
+      font-size: .9em;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: .72em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .badge.soon {
+      background: #f0f0f0;
+      color: #999;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 680px;
+      margin: 96px auto 0;
+      text-align: center;
+      font-size: .82em;
+      color: #aaa;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 520px) {
+      .sketch-row {
+        grid-template-columns: 1fr;
+      }
+      .thumbnail {
+        width: 100%;
+        height: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Latin Explorer</h1>
+  <p>Interactive tools for learning Latin — vocabulary, forms, and grammar.<br>
+     Built for classroom use. No login required.</p>
+</header>
+
+<main class="sketch-list">
+
+  <!-- ── Placeholder: Noun Declensions ── -->
+  <div class="sketch-row placeholder">
+    <div class="thumbnail">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#e8f4f8"/>
+        <!-- Table grid suggestion -->
+        <rect x="20" y="18" width="120" height="64" rx="4" fill="none" stroke="#7ab8d4" stroke-width="1.5"/>
+        <line x1="20" y1="34" x2="140" y2="34" stroke="#7ab8d4" stroke-width="1"/>
+        <line x1="20" y1="50" x2="140" y2="50" stroke="#7ab8d4" stroke-width="1"/>
+        <line x1="20" y1="66" x2="140" y2="66" stroke="#7ab8d4" stroke-width="1"/>
+        <line x1="60" y1="18" x2="60" y2="82" stroke="#7ab8d4" stroke-width="1"/>
+        <line x1="100" y1="18" x2="100" y2="82" stroke="#7ab8d4" stroke-width="1"/>
+        <!-- Header row fill -->
+        <rect x="20" y="18" width="120" height="16" rx="4" fill="#7ab8d4" opacity=".4"/>
+        <text x="80" y="29" text-anchor="middle" font-size="7" fill="#2a7a9e" font-family="sans-serif">NOM · GEN · DAT · ACC · ABL</text>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <span class="badge soon">Coming soon</span>
+      <h2>Noun Declension Explorer</h2>
+      <p>Enter any Latin noun and see all five cases in singular and plural, with English glosses and pattern highlighting across the five declensions.</p>
+    </div>
+  </div>
+
+  <!-- ── Placeholder: Verb Conjugation ── -->
+  <div class="sketch-row placeholder">
+    <div class="thumbnail">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#fdf3e7"/>
+        <!-- Conjugation wheel suggestion -->
+        <circle cx="80" cy="50" r="34" fill="none" stroke="#e8a244" stroke-width="1.5"/>
+        <circle cx="80" cy="50" r="10" fill="#e8a244" opacity=".5"/>
+        <line x1="80" y1="16" x2="80" y2="84" stroke="#e8a244" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="46" y1="50" x2="114" y2="50" stroke="#e8a244" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="80" y="13" text-anchor="middle" font-size="7" fill="#b06a10" font-family="sans-serif">amō</text>
+        <text x="80" y="91" text-anchor="middle" font-size="7" fill="#b06a10" font-family="sans-serif">amant</text>
+        <text x="42" y="52" text-anchor="middle" font-size="7" fill="#b06a10" font-family="sans-serif">amas</text>
+        <text x="118" y="52" text-anchor="middle" font-size="7" fill="#b06a10" font-family="sans-serif">amatis</text>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <span class="badge soon">Coming soon</span>
+      <h2>Verb Conjugation Drill</h2>
+      <p>Choose a verb, tense, and voice. The app prompts you for each person and number, gives immediate feedback, and tracks your accuracy across a session.</p>
+    </div>
+  </div>
+
+  <!-- ── Placeholder: Vocabulary / Etymology ── -->
+  <div class="sketch-row placeholder">
+    <div class="thumbnail">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#f0ebe8"/>
+        <!-- Word tree suggestion -->
+        <line x1="80" y1="20" x2="40" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <line x1="80" y1="20" x2="80" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <line x1="80" y1="20" x2="120" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <circle cx="80" cy="20" r="10" fill="#c4a48e"/>
+        <circle cx="40" cy="65" r="10" fill="#ddc4b5"/>
+        <circle cx="80" cy="65" r="10" fill="#ddc4b5"/>
+        <circle cx="120" cy="65" r="10" fill="#ddc4b5"/>
+        <text x="80" y="23" text-anchor="middle" font-size="7" fill="#5a3d2b" font-family="sans-serif" font-weight="bold">amor</text>
+        <text x="40" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">amour</text>
+        <text x="80" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">amorous</text>
+        <text x="120" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">enamored</text>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <span class="badge soon">Coming soon</span>
+      <h2>Latin Roots &amp; English Derivatives</h2>
+      <p>Start from a Latin root and explore its English descendants. Helps students see Latin not as a dead language but as the living foundation of half their vocabulary.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Latin Explorer · TCE 265 — Miami University</p>
+  <p>Tools developed for classroom use. Pure HTML — no login, no tracking.</p>
+</footer>
+
+</body>
+</html>
