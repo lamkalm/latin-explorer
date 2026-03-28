@@ -306,6 +306,7 @@ const CHARS = [
     name: 'Julius Caesar', short: 'Caesar',
     dates: '100–44 BCE', tagline: 'Dictator of Rome',
     wiki: 'Julius_Caesar',
+    localImg: 'fun.jpg.png',
     color: '#8b1a1a', faint: '#fdf0f0',
     skin: '#c8956c', hair: '#5a2800', robe: '#8b1a1a',
     voice: { pitch: 0.82, rate: 0.85 },
@@ -501,7 +502,7 @@ function renderCards() {
 
 function renderAvatar() {
   const ch = CHARS[activeChar];
-  const imgSrc = imgCache[ch.id];
+  const imgSrc = ch.localImg || imgCache[ch.id];
   if (imgSrc) {
     avatarWrap.innerHTML = `<img src="${imgSrc}" alt="${ch.name}">`;
   } else {

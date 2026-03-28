@@ -4,6 +4,8 @@
 
 Interactive apps for learning Latin as a living, spoken language — built for an independent study project at Miami University. No frameworks, no build step, no login. Just HTML files that open in a browser.
 
+> **Note:** Lucas is making changes to this project (that barnacle).
+
 ---
 
 ## What's here
