@@ -12,7 +12,6 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 
 | App | Status | Description |
 |---|---|---|
-| [Speak Latin](pronunciation.html) | ✅ Live | Hear Caesar, Cicero, Finnish radio, and the Vatican. Record yourself and compare. |
 | [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Click to reveal modern descendants. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
 | Latin World Map | Coming soon | Interactive map of the Roman Empire and modern Romance language regions. |
@@ -21,44 +20,33 @@ See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) fo
 
 ---
 
-## Speak Latin — What Works Now
+## Latin Roots Explorer — What Works Now
 
-**[pronunciation.html](pronunciation.html)** is the working demo built for the first meeting. Here's what it does and what's on the roadmap.
+**[roots.html](roots.html)** is an interactive vocabulary builder showing how Latin roots became English words. Here's what it does:
 
 ### Working features
 
-**Four characters across two eras**
-- Julius Caesar (100–44 BCE) and Cicero (106–43 BCE) represent classical Latin
-- Nuntii Latini (Finnish Latin Radio, 1989–2019) and the Vatican show Latin as a living institution
-- Each character has a distinct TTS voice profile (pitch and rate tuned per character)
+**20 Latin roots with meanings**
+- Core Latin words like "amor" (love), "aqua" (water), "bellum" (war), "caput" (head)
+- Each root includes its English meaning and multiple modern derivatives
 
-**Real portrait images**
-- On page load, the app fetches public-domain photos from Wikipedia — actual Roman bust photographs for Caesar and Cicero
-- SVG avatar silhouette shows as fallback if offline
+**Click-to-reveal English descendants**
+- Cards start showing only the Latin root and meaning
+- Click any card to reveal 4-5 English words that evolved from it
+- Visual feedback with color changes and smooth animations
 
-**Animated talking head**
-- The avatar's mouth opens and closes in sync while audio is playing
-- Works with both TTS and instructor recordings
+**Progress tracking**
+- Shows "Explored X of 20 roots" at the bottom
+- Encourages completion while allowing free exploration
 
-**Word → phrase progression**
-- Each character has three items: a single vocabulary word, a short phrase, and a famous sentence
-- Navigate with arrows; progress dots show position
+**Responsive design**
+- Works on desktop, tablet, and mobile
+- Cards automatically arrange in a grid that adapts to screen size
 
-**Pronunciation guide**
-- Every item shows a phonetic transcription (e.g., *WAY-nee, WEE-dee, WEE-kee*) and a plain-English note explaining the key rule at work
-- Expandable classical pronunciation reference panel at the bottom
-
-**Record yourself & play back**
-- Students record themselves saying the Latin, then immediately play it back to compare with the model
-- Uses the browser's MediaRecorder API — no server, no upload
-
-**TTS voice quality**
-- Uses Italian (`it`) as the base language rather than Latin (`la`), which has no browser support and sounds terrible
-- Italian vowels and consonants are the closest living match to classical Latin
-- Scans available system voices and prefers local Italian, then any Italian, then Spanish, then French
-
-**Instructor Mode**
-- Click "Instructor Mode" in the nav bar — no password, just a toggle
+**Educational value**
+- Demonstrates that Latin isn't dead — it's the foundation of modern English vocabulary
+- Shows etymological connections that make Latin feel relevant and alive
+- Perfect complement to pronunciation practice — vocabulary building without the speaking pressure
 - Record your own voice for any phrase; saved to the browser's localStorage
 - Students hear the instructor's recording instead of TTS when one exists
 - Preview and clear recordings per phrase
