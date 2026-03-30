@@ -13,8 +13,8 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 | App | Status | Description |
 |---|---|---|
 | [Speak Latin](pronunciation.html) | ✅ Live | Hear Caesar, Cicero, Finnish radio, and the Vatican. Record yourself and compare. |
+| [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Click to reveal modern descendants. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
-| Latin Roots & Derivatives | Coming soon | Explore how Latin roots became half of English. |
 | Latin World Map | Coming soon | Interactive map of the Roman Empire and modern Romance language regions. |
 
 See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) for the project roadmap.
