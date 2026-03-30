@@ -14,7 +14,6 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 |---|---|---|
 | [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Click to reveal modern descendants. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
-| Latin World Map | Coming soon | Interactive map of the Roman Empire and modern Romance language regions. |
 
 See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) for the project roadmap.
 
