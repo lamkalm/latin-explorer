@@ -13,39 +13,42 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 | App | Status | Description |
 |---|---|---|
 | [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Click to reveal modern descendants. |
+| [Virgil's Legacy](virgil.html) | ✅ Live | Explore how Virgil's poetry shaped the modern world, from the U.S. Great Seal to cultural institutions. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
 
 See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) for the project roadmap.
 
 ---
 
-## Latin Roots Explorer — What Works Now
+## Virgil's Legacy — What Works Now
 
-**[roots.html](roots.html)** is an interactive vocabulary builder showing how Latin roots became English words. Here's what it does:
+**[virgil.html](virgil.html)** explores how Virgil's poetry didn't end with ancient Rome — it shaped the modern world. This interactive exhibit connects Virgil's Latin words to contemporary institutions and culture.
 
 ### Working features
 
-**20 Latin roots with meanings**
-- Core Latin words like "amor" (love), "aqua" (water), "bellum" (war), "caput" (head)
-- Each root includes its English meaning and multiple modern derivatives
+**Six modern connections**
+- U.S. Great Seal ("Novus Ordo Seclorum" and "Annuit Coeptis")
+- West Point Military Academy motto
+- European royal heraldry traditions
+- University and academic institutions
+- Cultural and literary influences
+- Real-world examples with historical context
 
-**Click-to-reveal English descendants**
-- Cards start showing only the Latin root and meaning
-- Click any card to reveal 4-5 English words that evolved from it
-- Visual feedback with color changes and smooth animations
+**Interactive cards**
+- Each connection shows the original Latin quote from Virgil
+- English translation for accessibility
+- Modern context explaining the connection
+- "Learn More" links to Wikipedia for deeper exploration
 
-**Progress tracking**
-- Shows "Explored X of 20 roots" at the bottom
-- Encourages completion while allowing free exploration
+**Visual design**
+- Portrait of Virgil loaded from Wikipedia (with SVG fallback)
+- Clean card-based layout showing ancient words meeting modern institutions
+- Responsive design that works on all devices
 
-**Responsive design**
-- Works on desktop, tablet, and mobile
-- Cards automatically arrange in a grid that adapts to screen size
-
-**Educational value**
-- Demonstrates that Latin isn't dead — it's the foundation of modern English vocabulary
-- Shows etymological connections that make Latin feel relevant and alive
-- Perfect complement to pronunciation practice — vocabulary building without the speaking pressure
+**Educational impact**
+- Demonstrates that Latin literature isn't "dead" — it's actively shaping our world
+- Makes Virgil relevant to modern students by showing his influence on government, education, and culture
+- Perfect for showing how classical education connects to contemporary life
 - Record your own voice for any phrase; saved to the browser's localStorage
 - Students hear the instructor's recording instead of TTS when one exists
 - Preview and clear recordings per phrase
