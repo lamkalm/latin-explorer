@@ -12,8 +12,8 @@ Interactive apps for learning Latin as a living, spoken language — built for a
 
 | App | Status | Description |
 |---|---|---|
-| [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Click to reveal modern descendants. |
-| [Virgil's Legacy](virgil.html) | ✅ Live | Explore how Virgil's poetry shaped the modern world, from the U.S. Great Seal to cultural institutions. |
+| [Latin Roots Explorer](roots.html) | ✅ Live | Discover how Latin roots became English words. Topic selector, add/delete student derivatives, and reveal interactions build vocabulary. |
+| [Virgil's Legacy](virgil.html) | ✅ Live | Explore how Virgil's poetry shaped the modern world, with an email-based student submission form to send translations to a teacher. |
 | Conversation Coach | Coming soon | Talk with a Latin avatar in scripted real-world dialogues. |
 
 See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) for the project roadmap.
@@ -22,7 +22,7 @@ See [BRAINSTORM.md](BRAINSTORM.md) for the full vision and [TODO.md](TODO.md) fo
 
 ## Virgil's Legacy — What Works Now
 
-**[virgil.html](virgil.html)** explores how Virgil's poetry didn't end with ancient Rome — it shaped the modern world. This interactive exhibit connects Virgil's Latin words to contemporary institutions and culture.
+**[virgil.html](virgil.html)** explores how Virgil's poetry didn't end with ancient Rome — it shaped the modern world. This interactive exhibit connects Virgil's Latin words to contemporary institutions and culture, plus includes a student form to submit translations to a teacher via email.
 
 ### Working features
 

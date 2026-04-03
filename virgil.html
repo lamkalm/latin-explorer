@@ -172,6 +172,46 @@
       background: #333;
     }
 
+    .student-submit {
+      max-width: 680px;
+      margin: 56px auto 40px;
+      padding: 20px;
+      border: 2px solid #e5e5ea;
+      border-radius: 14px;
+      background: #fafafa;
+    }
+
+    .student-submit h2 {
+      font-size: 1.2em;
+      margin-bottom: 12px;
+    }
+
+    .student-submit textarea,
+    .student-submit input {
+      width: 100%;
+      margin: 8px 0 16px;
+      padding: 10px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+
+    .student-submit button {
+      display: inline-block;
+      background: #1d1d1f;
+      color: white;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .student-submit button:hover {
+      background: #333;
+    }
+
     /* ── Footer ── */
     footer {
       max-width: 680px;
@@ -366,6 +406,34 @@
 
 </div>
 
+<section class="student-submit">
+  <h2>Submit your translation</h2>
+  <p>Type your translation and click the button to share it with your teacher via mail client.</p>
+
+  <label>
+    Teacher email:
+    <input type="email" id="teacherEmail" value="teacher@example.com" placeholder="teacher@example.com" required />
+  </label>
+
+  <label>
+    Your name:
+    <input type="text" id="studentName" placeholder="Student name (optional)" />
+  </label>
+
+  <label>
+    Latin text:
+    <textarea id="latinText" rows="2">Forsan et haec olim meminisse iuvabit</textarea>
+  </label>
+
+  <label>
+    Your translation:
+    <textarea id="studentTranslation" rows="5" placeholder="Enter your translation here"></textarea>
+  </label>
+
+  <button id="sendEmail">Send to teacher</button>
+  <p id="submitStatus" style="color:#1d7a3a; margin-top:10px;"></p>
+</section>
+
 <footer>
   <p>Latin Explorer · TCE 265 — Miami University</p>
   <p>Tools developed for classroom use. Pure HTML — no login, no tracking.</p>
@@ -389,6 +457,31 @@ function loadVirgilPortrait() {
 }
 
 loadVirgilPortrait();
+
+const sendBtn = document.getElementById('sendEmail');
+if (sendBtn) {
+  sendBtn.addEventListener('click', () => {
+    const teacher = document.getElementById('teacherEmail').value.trim();
+    const name = document.getElementById('studentName').value.trim() || 'Anonymous';
+    const latin = document.getElementById('latinText').value.trim();
+    const translation = document.getElementById('studentTranslation').value.trim();
+    const status = document.getElementById('submitStatus');
+
+    if (!teacher || !translation) {
+      status.textContent = 'Please provide teacher email and your translation.';
+      status.style.color = '#b22222';
+      return;
+    }
+
+    const subject = encodeURIComponent('Virgil translation submission');
+    const body = encodeURIComponent(`Name: ${name}\nLatin: ${latin}\nTranslation:\n${translation}`);
+
+    window.location.href = `mailto:${teacher}?subject=${subject}&body=${body}`;
+
+    status.textContent = 'Opening email client… if it did not open, check your browser or mail app settings.';
+    status.style.color = '#1d7a3a';
+  });
+}
 </script>
 
 </body>
