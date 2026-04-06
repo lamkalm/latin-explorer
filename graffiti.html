@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graffiti Wall — Latin Explorer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+      padding: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .topic-of-week {
+      background: #f0f5e8;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      border-left: 4px solid #34c759;
+    }
+
+    .topic-of-week h2 {
+      font-size: 1.3em;
+      margin-bottom: 12px;
+      color: #1d1d1f;
+    }
+
+    .topic-of-week p {
+      margin-bottom: 8px;
+      color: #6e6e73;
+    }
+
+    .topic-of-week ul {
+      margin: 12px 0;
+      padding-left: 20px;
+    }
+
+    .topic-of-week li {
+      margin-bottom: 4px;
+    }
+
+    .topic-controls {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .topic-controls label {
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+
+    .topic-controls select {
+      margin-left: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d1d6;
+      background: #fff;
+      color: #1d1d1f;
+    }
+
+    .topic-of-week a {
+      color: #007aff;
+      text-decoration: none;
+    }
+
+    .topic-of-week a:hover {
+      text-decoration: underline;
+    }
+
+    .post-form {
+      background: #f5f5f7;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+    }
+
+    .post-form h2 {
+      font-size: 1.2em;
+      margin-bottom: 16px;
+    }
+
+    .post-form textarea {
+      width: 100%;
+      height: 80px;
+      padding: 12px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .post-form button {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .post-form button:hover {
+      background: #0056cc;
+    }
+
+    .posts {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .post {
+      background: #f9f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 4px solid #007aff;
+    }
+
+    .post .author {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .post .timestamp {
+      font-size: 0.8em;
+      color: #6e6e73;
+      margin-bottom: 8px;
+    }
+
+    .post .content {
+      line-height: 1.6;
+    }
+
+    .reply-form {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .reply-form textarea {
+      width: 100%;
+      height: 60px;
+      padding: 8px;
+      border: 1px solid #d1d1d6;
+      border-radius: 6px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+
+    .reply-form button {
+      padding: 6px 12px;
+      background: #34c759;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .reply-form button:hover {
+      background: #28a745;
+    }
+
+    .reply-btn {
+      margin-top: 8px;
+      padding: 4px 8px;
+      background: none;
+      border: 1px solid #007aff;
+      color: #007aff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+
+    .reply-btn:hover {
+      background: #007aff;
+      color: white;
+    }
+
+    .replies {
+      margin-top: 12px;
+      padding-left: 16px;
+      border-left: 2px solid #e5e5ea;
+    }
+
+    .replies .post {
+      background: #f0f0f0;
+      border-left-color: #34c759;
+    }
+
+    footer {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 0.8em;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Graffiti Wall</h1>
+  <p>Write and respond to posts in Latin. Share your thoughts, poetry, or questions with classmates.</p>
+</header>
+
+<section class="topic-of-week">
+  <h2 id="topicHeading">Topic of the Week: Colors</h2>
+  <p id="topicIntro">Respond to one or both prompts in Latin on the wall below:</p>
+  <ul id="topicPrompts"></ul>
+  <p id="topicCta"></p>
+  <div class="topic-controls">
+    <label>
+      Topic:
+      <select id="topicSelect"></select>
+    </label>
+  </div>
+</section>
+
+<section class="post-form">
+  <h2>Post Something New</h2>
+  <form id="newPostForm">
+    <textarea id="postContent" placeholder="Scribe hic in Latine... (Write here in Latin...)" required></textarea>
+    <br>
+    <button type="submit">Post</button>
+  </form>
+</section>
+
+<section class="posts" id="postsContainer">
+  <!-- Posts will be loaded here -->
+</section>
+
+<footer>
+  <p>Graffiti Wall · Latin Explorer</p>
+  <p>Posts are stored locally. Refresh to see new posts.</p>
+</footer>
+
+<script>
+const TOPIC_SETS = {
+  colors: {
+    title: 'Colors',
+    intro: 'Respond to one or both prompts in Latin on the wall below:',
+    prompts: [
+      { latin: 'Quid colores significant?', english: 'What do colors mean to you?' },
+      { latin: 'Describe tuam vestem colore.', english: 'Describe your clothing by color.' }
+    ],
+    cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin color words to English!'
+  },
+  weather: {
+    title: 'Weather',
+    intro: 'Respond to one or both prompts in Latin on the wall below:',
+    prompts: [
+      { latin: 'Qualis est hodie tempestas apud te?', english: 'What is the weather like where you are today?' },
+      { latin: 'Quod genus tempestatis maxime tibi placet?', english: 'What kind of weather do you like best?' }
+    ],
+    cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin weather words to English!'
+  },
+  emotions: {
+    title: 'Emotions',
+    intro: 'Respond to one or both prompts in Latin on the wall below:',
+    prompts: [
+      { latin: 'Quomodo te hodie sentis?', english: 'How are you feeling today?' },
+      { latin: 'Quae res tibi gaudium aut tristitiam dat?', english: 'What gives you joy or sadness?' }
+    ],
+    cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin emotion words to English!'
+  }
+};
+
+const postsContainer = document.getElementById('postsContainer');
+const newPostForm = document.getElementById('newPostForm');
+const postContent = document.getElementById('postContent');
+const topicSelect = document.getElementById('topicSelect');
+const topicHeading = document.getElementById('topicHeading');
+const topicIntro = document.getElementById('topicIntro');
+const topicPrompts = document.getElementById('topicPrompts');
+const topicCta = document.getElementById('topicCta');
+
+let currentTopic = localStorage.getItem('latinRootsTopic') || 'colors';
+
+function getTopicData() {
+  return TOPIC_SETS[currentTopic] || TOPIC_SETS.colors;
+}
+
+function getPostsByTopic() {
+  const byTopic = JSON.parse(localStorage.getItem('latinGraffitiPostsByTopic') || '{}');
+
+  // One-time migration of legacy flat posts array into the Colors topic.
+  if (!byTopic.colors) {
+    const legacyPosts = JSON.parse(localStorage.getItem('latinGraffitiPosts') || '[]');
+    if (legacyPosts.length) {
+      byTopic.colors = legacyPosts;
+      localStorage.setItem('latinGraffitiPostsByTopic', JSON.stringify(byTopic));
+    }
+  }
+
+  return byTopic;
+}
+
+function savePostsByTopic(byTopic) {
+  localStorage.setItem('latinGraffitiPostsByTopic', JSON.stringify(byTopic));
+}
+
+function populateTopicMenu() {
+  topicSelect.innerHTML = '';
+  Object.keys(TOPIC_SETS).forEach(key => {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = TOPIC_SETS[key].title;
+    topicSelect.appendChild(option);
+  });
+  topicSelect.value = currentTopic;
+}
+
+function renderTopicSection() {
+  const topic = getTopicData();
+  topicHeading.textContent = `Topic of the Week: ${topic.title}`;
+  topicIntro.textContent = topic.intro;
+  topicPrompts.innerHTML = topic.prompts
+    .map(prompt => `<li><strong>${prompt.latin}</strong> (${prompt.english})</li>`)
+    .join('');
+  topicCta.innerHTML = topic.cta;
+}
+
+// Load posts from localStorage
+function loadPosts() {
+  const byTopic = getPostsByTopic();
+  const posts = byTopic[currentTopic] || [];
+  postsContainer.innerHTML = '';
+  posts.forEach((post, index) => {
+    const postEl = createPostElement(post, index);
+    postsContainer.appendChild(postEl);
+  });
+}
+
+// Create a post element
+function createPostElement(post, index) {
+  const postDiv = document.createElement('div');
+  postDiv.className = 'post';
+  postDiv.innerHTML = `
+    <div class="author">Anonymous</div>
+    <div class="timestamp">${new Date(post.timestamp).toLocaleString()}</div>
+    <div class="content">${post.content.replace(/\n/g, '<br>')}</div>
+    <button class="reply-btn" data-index="${index}">Reply</button>
+    ${post.replies ? `<div class="replies">${post.replies.map(reply => `
+      <div class="post">
+        <div class="author">Anonymous</div>
+        <div class="timestamp">${new Date(reply.timestamp).toLocaleString()}</div>
+        <div class="content">${reply.content.replace(/\n/g, '<br>')}</div>
+      </div>
+    `).join('')}</div>` : ''}
+  `;
+
+  // Add reply functionality
+  const replyBtn = postDiv.querySelector('.reply-btn');
+  replyBtn.addEventListener('click', () => {
+    let replyForm = postDiv.querySelector('.reply-form');
+    if (!replyForm) {
+      replyForm = document.createElement('div');
+      replyForm.className = 'reply-form';
+      replyForm.innerHTML = `
+        <textarea placeholder="Responde hic... (Reply here...)"></textarea>
+        <button>Reply</button>
+      `;
+      replyForm.querySelector('button').addEventListener('click', () => {
+        const replyContent = replyForm.querySelector('textarea').value.trim();
+        if (replyContent) {
+          addReply(index, replyContent);
+          replyForm.style.display = 'none';
+          replyForm.querySelector('textarea').value = '';
+        }
+      });
+      postDiv.appendChild(replyForm);
+    }
+    replyForm.style.display = replyForm.style.display === 'block' ? 'none' : 'block';
+  });
+
+  return postDiv;
+}
+
+// Add a new post
+function addPost(content) {
+  const byTopic = getPostsByTopic();
+  const posts = byTopic[currentTopic] || [];
+  posts.unshift({
+    content: content,
+    timestamp: Date.now(),
+    replies: []
+  });
+  byTopic[currentTopic] = posts;
+  savePostsByTopic(byTopic);
+  loadPosts();
+}
+
+// Add a reply to a post
+function addReply(postIndex, content) {
+  const byTopic = getPostsByTopic();
+  const posts = byTopic[currentTopic] || [];
+  if (posts[postIndex]) {
+    posts[postIndex].replies = posts[postIndex].replies || [];
+    posts[postIndex].replies.push({
+      content: content,
+      timestamp: Date.now()
+    });
+    byTopic[currentTopic] = posts;
+    savePostsByTopic(byTopic);
+    loadPosts();
+  }
+}
+
+// Handle new post form submission
+newPostForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const content = postContent.value.trim();
+  if (content) {
+    addPost(content);
+    postContent.value = '';
+  }
+});
+
+topicSelect.addEventListener('change', (e) => {
+  currentTopic = e.target.value;
+  localStorage.setItem('latinRootsTopic', currentTopic);
+  renderTopicSection();
+  loadPosts();
+});
+
+// Load posts on page load
+populateTopicMenu();
+renderTopicSection();
+loadPosts();
+</script>
+
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Doj05\Desktop\latin-explorer\graffiti.html
