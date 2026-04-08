@@ -1,6 +1,6 @@
 # Latin Explorer
 
-Live site: https://ohiomathteacher.github.io/latin-explorer/
+Live site: https://lamkalm.github.io/latin-explorer/
 
 Interactive Latin learning tools built as standalone HTML pages (no framework, no build step, no backend).
 
