@@ -1,6 +1,7 @@
 # Latin Explorer
 
 Live site: https://lamkalm.github.io/latin-explorer/
+GitHub repo: https://github.com/lamkalm/latin-explorer
 
 Interactive Latin learning tools built as standalone HTML pages (no framework, no build step, no backend).
 
@@ -63,6 +64,14 @@ The homepage currently links these tools:
 1. Edit the HTML file directly.
 2. Open it in a browser for testing.
 3. Commit and push to update GitHub Pages.
+
+**Deploying changes:**
+```
+git add .
+git commit -m "your message"
+git push
+```
+GitHub Pages will update at https://lamkalm.github.io/latin-explorer/ within ~60 seconds.
 
 ### Data and persistence model
 
