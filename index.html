@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latin Explorer — TCE 265</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+      padding: 72px 24px 96px;
+    }
+
+    /* ── Header ── */
+    header {
+      max-width: 680px;
+      margin: 0 auto 80px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.4em;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+      color: #1d1d1f;
+    }
+
+    header p {
+      font-size: 1em;
+      color: #6e6e73;
+      line-height: 1.75;
+    }
+
+    /* ── Sketch rows ── */
+    .sketch-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .sketch-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 28px;
+      align-items: start;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 12px;
+      padding: 20px;
+      transition: background .15s;
+    }
+
+    .sketch-row:hover {
+      background: #f5f5f7;
+    }
+
+    .sketch-row.placeholder {
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .thumbnail {
+      width: 160px;
+      height: 100px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .thumbnail canvas, .thumbnail svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sketch-info h2 {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .sketch-info p {
+      font-size: .9em;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: .72em;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .badge.soon {
+      background: #f0f0f0;
+      color: #999;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 680px;
+      margin: 96px auto 0;
+      text-align: center;
+      font-size: .82em;
+      color: #aaa;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 520px) {
+      .sketch-row {
+        grid-template-columns: 1fr;
+      }
+      .thumbnail {
+        width: 100%;
+        height: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Latin Explorer</h1>
+  <p>Interactive tools for learning Latin as a living, spoken language.<br>
+     Built for classroom use. No login required.</p>
+</header>
+
+<main class="sketch-list">
+
+  <!-- ── Vocabulary Roots ── -->
+  <a href="roots.html" class="sketch-row">
+    <div class="thumbnail" id="rootsThumb">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#f0ebe8"/>
+        <line x1="80" y1="20" x2="40" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <line x1="80" y1="20" x2="80" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <line x1="80" y1="20" x2="120" y2="60" stroke="#9b7b6a" stroke-width="1.5"/>
+        <circle cx="80" cy="20" r="10" fill="#c4a48e"/>
+        <circle cx="40" cy="65" r="10" fill="#ddc4b5"/>
+        <circle cx="80" cy="65" r="10" fill="#ddc4b5"/>
+        <circle cx="120" cy="65" r="10" fill="#ddc4b5"/>
+        <text x="80" y="23" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif" font-weight="bold">albus, albi</text>
+        <text x="40" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">album</text>
+        <text x="80" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">albino</text>
+        <text x="120" y="68" text-anchor="middle" font-size="6" fill="#5a3d2b" font-family="sans-serif">albescent</text>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <h2>Vocabulary Roots</h2>
+      <p>Explore how Latin color words became English. Click any root to reveal its modern descendants — from "albus, albi" (white) to "album," "albino," and "albescent."</p>
+    </div>
+  </a>
+
+  <!-- ── Georgics ── -->
+  <a href="georgics-reader.html" class="sketch-row">
+    <div class="thumbnail" id="georgicsThumb">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#f0f5e8"/>
+        <!-- Plow and field -->
+        <rect x="20" y="60" width="120" height="20" fill="#8b4513"/>
+        <polygon points="20,60 35,40 50,60" fill="#654321"/>
+        <line x1="35" y1="40" x2="35" y2="20" stroke="#654321" stroke-width="3"/>
+        <!-- Furrows -->
+        <line x1="0" y1="80" x2="160" y2="80" stroke="#228b22" stroke-width="2"/>
+        <line x1="0" y1="85" x2="160" y2="85" stroke="#228b22" stroke-width="2"/>
+        <line x1="0" y1="90" x2="160" y2="90" stroke="#228b22" stroke-width="2"/>
+        <!-- Wheat -->
+        <rect x="10" y="70" width="3" height="10" fill="#daa520"/>
+        <rect x="15" y="72" width="3" height="8" fill="#daa520"/>
+        <rect x="20" y="68" width="3" height="12" fill="#daa520"/>
+        <rect x="25" y="70" width="3" height="10" fill="#daa520"/>
+        <!-- Scroll -->
+        <rect x="110" y="20" width="30" height="40" rx="3" fill="#f4e4bc" stroke="#8b4513" stroke-width="1"/>
+        <line x1="115" y1="25" x2="135" y2="25" stroke="#8b4513" stroke-width="1"/>
+        <line x1="115" y1="30" x2="135" y2="30" stroke="#8b4513" stroke-width="1"/>
+        <line x1="115" y1="35" x2="130" y2="35" stroke="#8b4513" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <h2>Georgics</h2>
+      <p>Explore Virgil's Georgics Book 1, lines 1-42. Select text for AI-powered questions about grammar, context, and meaning. Bilingual Latin/English with annotations.</p>
+    </div>
+  </a>
+
+  <!-- ── Graffiti Wall ── -->
+  <a href="graffiti.html" class="sketch-row">
+    <div class="thumbnail" id="graffitiThumb">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#e8f0ff"/>
+        <!-- Wall -->
+        <rect x="10" y="20" width="140" height="70" fill="#d1d1d6" stroke="#999" stroke-width="2"/>
+        <!-- Bricks -->
+        <line x1="10" y1="35" x2="150" y2="35" stroke="#bbb" stroke-width="1"/>
+        <line x1="10" y1="50" x2="150" y2="50" stroke="#bbb" stroke-width="1"/>
+        <line x1="10" y1="65" x2="150" y2="65" stroke="#bbb" stroke-width="1"/>
+        <line x1="10" y1="80" x2="150" y2="80" stroke="#bbb" stroke-width="1"/>
+        <!-- Graffiti -->
+        <text x="30" y="45" font-size="8" fill="#007aff" font-family="serif" font-weight="bold">AVE</text>
+        <text x="25" y="60" font-size="6" fill="#34c759" font-family="serif">AMICI</text>
+        <text x="20" y="75" font-size="7" fill="#ff3b30" font-family="serif" font-style="italic">SALVE</text>
+        <text x="100" y="50" font-size="5" fill="#ff9500" font-family="serif">ROMANI</text>
+        <text x="110" y="70" font-size="6" fill="#5856d6" font-family="serif">ITE</text>
+        <!-- Spray can -->
+        <rect x="130" y="85" width="8" height="12" rx="2" fill="#666"/>
+        <rect x="132" y="87" width="4" height="8" fill="#ccc"/>
+        <line x1="134" y1="83" x2="134" y2="85" stroke="#666" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <h2>Graffiti Wall</h2>
+      <p>A public wall for writing and responding to posts in Latin. Share poetry, thoughts, or questions with classmates. No login required.</p>
+    </div>
+  </a>
+
+</main>
+
+<footer>
+  <p>Latin Explorer · TCE 265 — Miami University</p>
+  <p>Tools developed for classroom use. Pure HTML — no login, no tracking.</p>
+</footer>
+
+<script>
+// Fetch a Wikipedia portrait and inject it into a thumbnail div.
+// If the fetch fails or returns no image, the existing SVG fallback stays.
+function loadWikiThumb(elementId, wikiTitle, alt, posY = 'center top') {
+  fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(wikiTitle))
+    .then(r => r.json())
+    .then(data => {
+      const src = data.thumbnail?.source;
+      if (!src) return;
+      document.getElementById(elementId).innerHTML =
+        `<img src="${src}" alt="${alt}"
+          style="width:100%;height:100%;object-fit:cover;object-position:${posY};">`;
+    })
+    .catch(() => {});
+}
+
+loadWikiThumb('speakThumb', 'Julius_Caesar',    'Julius Caesar bust');
+loadWikiThumb('convThumb',  'Cicero',            'Cicero bust');
+loadWikiThumb('rootsThumb', 'Latin',             'Latin inscription');
+loadWikiThumb('georgicsThumb', 'Virgil',         'Virgil bust');
+loadWikiThumb('graffitiThumb', 'Graffiti',       'Graffiti art');
+loadWikiThumb('mapThumb',   'Pope_Francis',      'Pope Francis', 'center 20%');
+</script>
+</body>
+</html>

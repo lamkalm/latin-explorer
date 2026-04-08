@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary Roots — Latin Explorer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+      padding: 72px 24px 96px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 48px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5ea;
+      z-index: 100;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 20px; font-size: .85em;
+    }
+    nav a { color: #6e6e73; text-decoration: none; }
+    nav a:hover { color: #1d1d1f; }
+    nav .sep { color: #d1d1d6; }
+    nav .cur { color: #1d1d1f; font-weight: 500; }
+
+    /* ── Header ── */
+    .page-header {
+      max-width: 680px;
+      margin: 0 auto 80px;
+      text-align: center;
+    }
+    .page-header h1 {
+      font-size: 2.4em;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+      color: #1d1d1f;
+    }
+    .page-header p {
+      font-size: 1em;
+      color: #6e6e73;
+      line-height: 1.75;
+    }
+
+    .topic-note {
+      background: #f0f5e8;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      border-left: 4px solid #34c759;
+      font-size: 0.9em;
+      color: #1d1d1f;
+    }
+
+    /* ── Root cards ── */
+    .roots-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .root-card {
+      background: #f5f5f7;
+      border-radius: 16px;
+      padding: 24px;
+      border: 2px solid #e5e5ea;
+      transition: all .2s;
+      cursor: pointer;
+    }
+
+    .root-card:hover {
+      background: #ebebed;
+      border-color: #d1d1d6;
+      transform: translateY(-2px);
+    }
+
+    .root-card.revealed {
+      background: #1a4a8b;
+      color: white;
+      border-color: #1a4a8b;
+    }
+
+    .root-card.revealed:hover {
+      background: #0f3a7a;
+      border-color: #0f3a7a;
+    }
+
+    .latin-root {
+      font-size: 2.2em;
+      font-weight: 700;
+      font-style: italic;
+      margin-bottom: 8px;
+      color: #1d1d1f;
+    }
+
+    .root-card.revealed .latin-root {
+      color: white;
+    }
+
+    .root-meaning {
+      font-size: .9em;
+      color: #6e6e73;
+      margin-bottom: 16px;
+    }
+
+    .root-card.revealed .root-meaning {
+      color: #cce0ff;
+    }
+
+    .derivatives {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .root-card.revealed .derivatives {
+      opacity: 1;
+    }
+
+    .derivative {
+      background: #e8f4fd;
+      color: #1a4a8b;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .8em;
+      font-weight: 600;
+      border: 1px solid #b8d8f0;
+    }
+
+    .root-card.revealed .derivative {
+      background: rgba(255,255,255,.2);
+      color: white;
+      border-color: rgba(255,255,255,.3);
+    }
+
+    .reveal-hint {
+      font-size: .75em;
+      color: #aaa;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .add-derivative {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .add-derivative input {
+      flex: 1;
+      min-width: 150px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d1d6;
+      font-size: .9em;
+    }
+
+    .add-derivative button {
+      white-space: nowrap;
+      background: #1d1d1f;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: .9em;
+      font-weight: 600;
+    }
+
+    .add-derivative button:hover {
+      background: #333;
+    }
+
+    .derivative {
+      position: relative;
+      padding-right: 24px;
+    }
+
+    .remove-deriv {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      border: none;
+      background: rgba(255,255,255,.2);
+      color: #1a4a8b;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .remove-deriv:hover {
+      background: rgba(255,255,255,.35);
+    }
+
+    .add-feedback {
+      margin-top: 6px;
+      font-size: .8em;
+      color: #1a4a8b;
+    }
+
+    .root-card.revealed .reveal-hint {
+      display: none;
+    }
+
+    /* ── Stats ── */
+    .stats {
+      max-width: 680px;
+      margin: 40px auto 0;
+      text-align: center;
+      font-size: .85em;
+      color: #6e6e73;
+    }
+
+    .stats strong {
+      color: #1d1d1f;
+      font-weight: 600;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 680px;
+      margin: 96px auto 0;
+      text-align: center;
+      font-size: .82em;
+      color: #aaa;
+      line-height: 1.8;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 520px) {
+      .roots-grid {
+        grid-template-columns: 1fr;
+      }
+      .page-header h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Latin Explorer</a>
+  <span class="sep">›</span>
+  <span class="cur">Vocabulary Roots</span>
+</nav>
+
+<div class="page-header">
+  <h1>Vocabulary Roots</h1>
+  <p>Explore how Latin color words became English. Click any root (with genitive) to see its modern descendants.</p>
+    <div class="topic-note" id="topicNote">
+      <strong>Topic of the Week: Colors</strong> — Explore 10 Latin color roots and their English derivatives!
+    </div>
+
+    <div style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
+      <label style="font-weight: 600;">
+        Topic:
+        <select id="topicSelect" style="margin-left: 8px; padding: 6px 10px; border-radius: 8px; border: 1px solid #d1d1d6;"></select>
+      </label>
+      <button id="resetBtn" style="background:#fff;color:#1d1d1f;border:1px solid #d1d1d6;padding:8px 14px;border-radius:10px;cursor:pointer;">Reset Card Reveal</button>
+    </div>
+  </div>
+
+<div class="roots-grid" id="rootsGrid">
+  <!-- Cards will be generated by JavaScript -->
+</div>
+
+<div class="stats" id="stats">
+  <p>Explored <strong id="exploredCount">0</strong> of <strong id="totalCount">0</strong> roots</p>
+</div>
+
+<footer>
+  <p>Latin Explorer · TCE 265 — Miami University</p>
+  <p>Tools developed for classroom use. Pure HTML — no login, no tracking.</p>
+</footer>
+
+<script>
+// ── Root data ────────────────────────────────────────────────────────────────
+const ROOT_SETS = {
+  colors: {
+    title: 'Colors',
+    note: 'Explore 10 Latin color roots and their English derivatives!',
+    roots: [
+      { latin: 'albus, albi', meaning: 'white', derivatives: ['album', 'albino', 'albinism', 'albescent'] },
+      { latin: 'aureus, aurei', meaning: 'golden', derivatives: ['aura', 'aurora', 'aureate', 'auriferous'] },
+      { latin: 'caeruleus, caerulei', meaning: 'blue', derivatives: ['cerulean', 'ceruleous'] },
+      { latin: 'cinereus, cinerei', meaning: 'ash-gray', derivatives: ['cinerary', 'cineraria', 'incinerate'] },
+      { latin: 'flavus, flavi', meaning: 'yellow', derivatives: ['blonde', 'flavescent', 'flavine'] },
+      { latin: 'niger, nigri', meaning: 'black', derivatives: ['denigrate', 'nigrescent', 'nigritude'] },
+      { latin: 'purpureus, purpurei', meaning: 'purple', derivatives: ['purple', 'purplish', 'purpura'] },
+      { latin: 'roseus, rosei', meaning: 'pink', derivatives: ['rose', 'rosy', 'roseate', 'roseola'] },
+      { latin: 'ruber, rubri', meaning: 'red', derivatives: ['ruby', 'rubric', 'rubella', 'rubescent'] },
+      { latin: 'viridis, viridis', meaning: 'green', derivatives: ['verdant', 'verdure', 'veridical', 'verdigris'] }
+    ]
+  },
+  weather: {
+    title: 'Weather',
+    note: 'Review weather roots from last week. Practice: match each root to modern weather vocabulary.',
+    roots: [
+      { latin: 'tempestas, tempestatis', meaning: 'storm, weather', derivatives: ['tempest', 'tempestuous', 'tempestive'] },
+      { latin: 'ventus, venti', meaning: 'wind', derivatives: ['ventilate', 'ventilation', 'venturous'] },
+      { latin: 'nubes, nubis', meaning: 'cloud', derivatives: ['nubilous', 'nubile', 'denude'] },
+      { latin: 'pluvia, pluviae', meaning: 'rain', derivatives: ['pluvial', 'pluviophile'] },
+      { latin: 'nimis', meaning: 'snow', derivatives: ['nimbus', 'nimbostratus'] },
+      { latin: 'frigus, frigoris', meaning: 'cold', derivatives: ['frigid', 'refrigerate', 'frigorific'] },
+      { latin: 'calor, caloris', meaning: 'heat', derivatives: ['caloric', 'calorie', 'calorific'] },
+      { latin: 'sol, solis', meaning: 'sun', derivatives: ['solar', 'solstice', 'solarium'] },
+      { latin: 'aqua, aquae', meaning: 'water', derivatives: ['aqueous', 'aquatic', 'aquifer'] },
+      { latin: 'umbra, umbrae', meaning: 'shade, shadow', derivatives: ['umbrella', 'penumbra', 'umbrage'] }
+    ]
+  },
+  emotions: {
+    title: 'Emotions',
+    note: 'Preview next week: explore Latin emotion roots and their English descendants.',
+    roots: [
+      { latin: 'amor, amoris', meaning: 'love', derivatives: ['amorous', 'enamor', 'paramour'] },
+      { latin: 'ira, irae', meaning: 'anger', derivatives: ['irate', 'ire', 'irascible'] },
+      { latin: 'timor, timoris', meaning: 'fear', derivatives: ['timid', 'timorous', 'intimidate'] },
+      { latin: 'gaudium, gaudii', meaning: 'joy', derivatives: ['gaudy', 'rejoice', 'joyous'] },
+      { latin: 'dolor, doloris', meaning: 'pain, sorrow', derivatives: ['dolor', 'dolorous', 'condolence'] },
+      { latin: 'spes, spei', meaning: 'hope', derivatives: ['despair', 'prosper', 'auspicious'] },
+      { latin: 'odium, odii', meaning: 'hatred', derivatives: ['odious', 'odium'] },
+      { latin: 'invidia, invidiae', meaning: 'envy', derivatives: ['envy', 'invidious'] },
+      { latin: 'pax, pacis', meaning: 'peace', derivatives: ['peace', 'pacify', 'pacific'] },
+      { latin: 'cura, curae', meaning: 'care, concern', derivatives: ['curate', 'curator', 'curative'] }
+    ]
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let exploredCount = 0;
+let currentTopic = localStorage.getItem('latinRootsTopic') || 'colors';
+
+// ── Render helpers ───────────────────────────────────────────────────────────
+function createRootCard(root) {
+  const card = document.createElement('div');
+  card.className = 'root-card';
+  card.innerHTML = `
+    <div class="latin-root">${root.latin}</div>
+    <div class="root-meaning">${root.meaning}</div>
+    <div class="derivatives">
+      ${root.derivatives.map(deriv => `<span class="derivative" data-value="${deriv}">${deriv}<button class="remove-deriv" aria-label="Delete derivative">×</button></span>`).join('')}
+    </div>
+    <div class="reveal-hint">Click to reveal English words</div>
+    <div class="add-derivative">
+      <input class="new-deriv-input" type="text" placeholder="Add your own derivative" aria-label="Add derivative" />
+      <button class="add-deriv-btn" type="button">Add</button>
+    </div>
+    <div class="add-feedback"></div>
+  `;
+
+  card.addEventListener('click', (event) => {
+    const isAddAction = event.target.closest('.add-derivative');
+    const isRemoveAction = event.target.closest('.remove-deriv');
+    if (isAddAction || isRemoveAction) return;
+
+    if (!card.classList.contains('revealed')) {
+      card.classList.add('revealed');
+      exploredCount++;
+      updateStats();
+    }
+  });
+
+  const addBtn = card.querySelector('.add-deriv-btn');
+  const input = card.querySelector('.new-deriv-input');
+  const feedback = card.querySelector('.add-feedback');
+  const derivativesContainer = card.querySelector('.derivatives');
+
+  addBtn.addEventListener('click', () => {
+    const value = input.value.trim();
+    if (!value) {
+      feedback.textContent = 'Type a derivative before adding.';
+      feedback.style.color = '#b22222';
+      return;
+    }
+
+    // Avoid duplicates in UI (for this session)
+    const lower = value.toLowerCase();
+    const existed = Array.from(derivativesContainer.querySelectorAll('.derivative')).some(el => el.dataset.value.toLowerCase() === lower);
+    if (existed) {
+      feedback.textContent = 'This derivative is already listed.';
+      feedback.style.color = '#b22222';
+      input.value = '';
+      return;
+    }
+
+    const newSpan = document.createElement('span');
+    newSpan.className = 'derivative';
+    newSpan.dataset.value = value;
+    newSpan.innerHTML = `${value}<button class="remove-deriv" aria-label="Delete derivative">×</button>`;
+    derivativesContainer.appendChild(newSpan);
+
+    root.derivatives.push(value);
+    feedback.textContent = 'Added! Great contribution.';
+    feedback.style.color = '#1a4a8b';
+    input.value = '';
+
+    if (!card.classList.contains('revealed')) {
+      card.classList.add('revealed');
+      exploredCount++;
+      updateStats();
+    }
+  });
+
+  derivativesContainer.addEventListener('click', (event) => {
+    if (!event.target.matches('.remove-deriv')) return;
+    const chip = event.target.closest('.derivative');
+    const value = chip.dataset.value;
+    if (value) {
+      root.derivatives = root.derivatives.filter(d => d.toLowerCase() !== value.toLowerCase());
+      chip.remove();
+      feedback.textContent = 'Derivative removed.';
+      feedback.style.color = '#1a4a8b';
+    }
+  });
+
+  return card;
+}
+
+function getActiveRoots() {
+  return (ROOT_SETS[currentTopic] || ROOT_SETS.colors).roots;
+}
+
+function updateStats() {
+  const roots = getActiveRoots();
+  document.getElementById('exploredCount').textContent = exploredCount;
+  document.getElementById('totalCount').textContent = roots.length;
+}
+
+function setTopicNote() {
+  const topic = ROOT_SETS[currentTopic] || ROOT_SETS.colors;
+  const note = document.getElementById('topicNote');
+  note.innerHTML = `<strong>${topic.title}</strong> — ${topic.note}`;
+}
+
+function populateTopicMenu() {
+  const select = document.getElementById('topicSelect');
+  select.innerHTML = '';
+
+  Object.keys(ROOT_SETS).forEach(key => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = ROOT_SETS[key].title;
+    select.appendChild(opt);
+  });
+
+  select.value = currentTopic;
+}
+
+function renderRoots() {
+  const grid = document.getElementById('rootsGrid');
+  grid.innerHTML = '';
+  exploredCount = 0;
+
+  const roots = [...getActiveRoots()].sort(() => Math.random() - 0.5);
+  roots.forEach(root => grid.appendChild(createRootCard(root)));
+
+  setTopicNote();
+  updateStats();
+}
+
+function init() {
+  populateTopicMenu();
+
+  document.getElementById('topicSelect').addEventListener('change', e => {
+    currentTopic = e.target.value;
+    localStorage.setItem('latinRootsTopic', currentTopic);
+    renderRoots();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    renderRoots();
+  });
+
+  renderRoots();
+}
+
+// Start the app
+init();
+</script>
+
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\Doj05\Desktop\latin-explorer\roots.html

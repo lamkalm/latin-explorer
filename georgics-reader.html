@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Georgics I — Close Reader</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #F8F4EC;
+  --ink: #2C2416;
+  --margin-bg: #EFEBE2;
+  --accent: #7A3B10;
+  --accent-light: #C69A5C;
+  --highlight-soft: rgba(198, 154, 92, 0.18);
+  --highlight-active: rgba(122, 59, 16, 0.18);
+  --comment-bg: #FFFCF5;
+  --comment-border: #D8CBAF;
+  --cave-dark: #1A2A40;
+  --cave-glow: #D4A843;
+  --muted: #8A7C6C;
+  --danger: #8B3333;
+  --speaker-soc: #5B3A1A;
+  --speaker-glau: #2A5A3A;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.78;
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ HEADER ═══ */
+.site-header {
+  background: var(--cave-dark);
+  color: #DDD3C0;
+  padding: 1.6rem 2rem 1.2rem;
+  position: relative; overflow: hidden;
+}
+.site-header::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 140%, rgba(212,168,67,0.12) 0%, transparent 55%);
+  pointer-events: none;
+}
+.header-inner {
+  max-width: 1220px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 0.8rem; position: relative; z-index: 1;
+}
+.header-text h1 {
+  font-family: 'Crimson Pro', serif;
+  font-weight: 300; font-size: 1.8rem; letter-spacing: 0.03em; line-height: 1.2;
+}
+.header-text .subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--cave-glow); opacity: 0.75; margin-top: 0.1rem;
+}
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+.lang-toggles { display: flex; gap: 0.4rem; }
+.lang-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem; font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid rgba(212,168,67,0.3); border-radius: 4px;
+  background: transparent; color: #BDB3A2; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.lang-btn:hover { border-color: var(--cave-glow); color: #DDD3C0; }
+.lang-btn.active { background: var(--cave-glow); color: var(--cave-dark); border-color: var(--cave-glow); }
+.instructions {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; color: #9A9083; line-height: 1.5;
+  text-align: right; max-width: 400px;
+}
+.instructions em { color: var(--cave-glow); font-style: normal; font-weight: 500; }
+
+/* ═══ MAIN LAYOUT ═══ */
+.main-container {
+  display: grid; grid-template-columns: 1fr 360px;
+  max-width: 1220px; margin: 0 auto;
+  height: calc(100vh - 110px);
+}
+
+body.interlinear-mode .main-container {
+  grid-template-columns: 1fr;
+}
+
+body.interlinear-mode .comment-column {
+  display: none;
+}
+
+/* ═══ TEXT COLUMN ═══ */
+.text-column {
+  padding: 2rem 2.8rem 4rem 2.8rem;
+  overflow-y: auto; position: relative;
+}
+.text-column::after {
+  content:''; position: absolute; top:0; right:0; bottom:0;
+  width: 1px; background: var(--comment-border);
+}
+.section-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 0.15rem; margin-top: 2.5rem;
+}
+.section-label:first-child { margin-top: 0; }
+.section-title {
+  font-family: 'Crimson Pro', serif;
+  font-weight: 600; font-size: 1.15rem; color: var(--cave-dark);
+  margin-bottom: 1rem; letter-spacing: 0.02em;
+}
+.para-heading {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500; font-style: italic;
+  color: var(--muted); margin-bottom: 0.15rem; margin-top: 1.2rem;
+}
+.text-paragraph {
+  margin-bottom: 0.6rem;
+  text-align: justify;
+  position: relative;
+}
+.interlinear-input {
+  width: 100%;
+  margin-bottom: 0.8rem;
+  padding: 0.4rem;
+  border: 1px solid var(--comment-border);
+  border-radius: 4px;
+  background: white;
+  color: var(--ink);
+  font-family: 'Crimson Pro', serif;
+  font-size: 16px;
+  outline: none;
+}
+.interlinear-input:focus {
+  border-color: var(--accent);
+}
+.speaker-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-right: 0.4rem;
+}
+.speaker-label.socrates { color: var(--speaker-soc); }
+.speaker-label.glaucon { color: var(--speaker-glau); }
+
+/* Hover annotations */
+.annotated {
+  border-bottom: 1.5px dotted var(--accent-light);
+  cursor: help; position: relative; transition: background 0.2s;
+}
+.annotated:hover { background: var(--highlight-soft); }
+.tooltip {
+  display: none; position: absolute;
+  bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--cave-dark); color: #E8DCC8;
+  padding: 0.65rem 0.9rem; border-radius: 5px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; line-height: 1.5;
+  width: 320px; max-width: 90vw; z-index: 100;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+.tooltip::after {
+  content:''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: var(--cave-dark);
+}
+.annotated:hover .tooltip { display: block; }
+::selection { background: var(--highlight-active); }
+
+/* ═══ COMMENT COLUMN ═══ */
+.comment-column {
+  background: var(--margin-bg);
+  padding: 1.5rem 1.1rem;
+  overflow-y: auto; position: relative;
+}
+.margin-header {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem; border-bottom: 1px solid var(--comment-border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.margin-header-title {
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.margin-header-subtitle {
+  font-size: 0.56rem; letter-spacing: 0.08em;
+  color: var(--muted); opacity: 0.7; font-weight: normal;
+}
+.comment-count {
+  font-size: 0.72rem; letter-spacing: 0; text-transform: none;
+  background: var(--accent-light); color: white;
+  padding: 0.1rem 0.45rem; border-radius: 10px; font-weight: 600;
+}
+.margin-header-actions {
+  display: flex; gap: 0.35rem; align-items: center;
+}
+.notes-filters {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+}
+.notes-filter {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid var(--comment-border);
+  border-radius: 3px;
+  background: white;
+  color: var(--ink);
+}
+.margin-header-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 0.65rem; font-weight: 500;
+  background: transparent; border: 1px solid rgba(212,168,67,0.2);
+  color: var(--muted); padding: 0.25rem 0.55rem; border-radius: 3px;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.margin-header-btn:hover { border-color: rgba(212,168,67,0.4); color: var(--accent-light); }
+#importNotesInput { display: none; }
+.comment-thread {
+  margin-bottom: 1rem;
+  animation: slideIn 0.25s ease;
+}
+@keyframes slideIn {
+  from { opacity:0; transform: translateX(8px); }
+  to { opacity:1; transform: translateX(0); }
+}
+.comment-card {
+  background: var(--comment-bg);
+  border: 1px solid var(--comment-border);
+  border-radius: 5px;
+  padding: 0.7rem 0.8rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.comment-passage {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic; font-size: 0.84rem;
+  color: var(--accent);
+  border-left: 2px solid var(--accent-light);
+  padding-left: 0.55rem; margin-bottom: 0.45rem;
+  line-height: 1.35;
+  max-height: 3.2em; overflow: hidden;
+}
+.comment-question {
+  color: var(--cave-dark); font-weight: 500; margin-bottom: 0.3rem;
+}
+.comment-answer { color: var(--ink); }
+.comment-answer.loading { color: var(--muted); font-style: italic; }
+.comment-meta {
+  font-size: 0.68rem; color: var(--muted); margin-top: 0.35rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.comment-delete {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 0.68rem; padding: 0 0.2rem; opacity: 0.4; transition: all 0.2s;
+}
+.comment-delete:hover { opacity: 1; color: var(--danger); }
+
+.followup-row {
+  display: flex; gap: 0.35rem; margin-top: 0.45rem;
+  padding-top: 0.45rem; border-top: 1px solid var(--comment-border);
+}
+.followup-input {
+  flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.76rem;
+  padding: 0.3rem 0.45rem; border: 1px solid var(--comment-border);
+  border-radius: 3px; background: white; color: var(--ink); outline: none;
+}
+.followup-input:focus { border-color: var(--accent); }
+.followup-input::placeholder { color: #BDB3A2; }
+.followup-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 500;
+  padding: 0.3rem 0.55rem; border: none; border-radius: 3px;
+  background: var(--accent); color: white; cursor: pointer; white-space: nowrap;
+}
+.followup-btn:hover { background: #63300D; }
+.followup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sub-comment {
+  margin-top: 0.4rem; padding-top: 0.4rem;
+  border-top: 1px dashed var(--comment-border);
+}
+.sub-comment .comment-question, .sub-comment .comment-answer { font-size: 0.76rem; }
+
+.comment-header-meta {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgba(122,59,16,0.22);
+  color: var(--accent);
+  background: rgba(198,154,92,0.12);
+}
+
+.meta-pill.line {
+  border-color: rgba(26,42,64,0.22);
+  color: var(--cave-dark);
+  background: rgba(26,42,64,0.08);
+}
+
+.empty-state {
+  text-align: center; padding: 2.5rem 1rem;
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; line-height: 1.6;
+}
+.empty-state .icon { font-size: 1.8rem; margin-bottom: 0.4rem; opacity: 0.35; }
+
+/* ═══ SELECTION POPUP ═══ */
+.selection-popup {
+  display: none; position: fixed; z-index: 200;
+  background: var(--cave-dark); border-radius: 7px;
+  padding: 0.55rem; box-shadow: 0 4px 22px rgba(0,0,0,0.3);
+  animation: popIn 0.12s ease; width: 300px;
+}
+@keyframes popIn {
+  from { opacity:0; transform: scale(0.96); }
+  to { opacity:1; transform: scale(1); }
+}
+.popup-passage {
+  font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.8rem;
+  color: var(--cave-glow); padding: 0 0.25rem 0.4rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.4rem;
+  max-height: 2.8em; overflow: hidden; line-height: 1.35;
+}
+.selection-popup input {
+  width: 100%; font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+  padding: 0.4rem 0.55rem; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px; background: rgba(255,255,255,0.06);
+  color: #E8DCC8; outline: none;
+}
+.selection-popup input::placeholder { color: rgba(255,255,255,0.3); }
+.selection-popup input:focus { border-color: var(--cave-glow); }
+.popup-tag-row {
+  margin-top: 0.35rem;
+}
+.popup-tag-select {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.76rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
+  color: #E8DCC8;
+  outline: none;
+}
+.popup-tag-select:focus { border-color: var(--cave-glow); }
+.popup-actions { display: flex; gap: 0.35rem; margin-top: 0.35rem; }
+.popup-btn {
+  font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 500;
+  padding: 0.3rem 0.6rem; border: none; border-radius: 3px; cursor: pointer;
+  transition: background 0.15s;
+}
+.popup-btn.primary { background: var(--cave-glow); color: var(--cave-dark); flex: 1; }
+.popup-btn.primary:hover { background: #E0B84E; }
+.popup-btn.secondary { background: rgba(255,255,255,0.06); color: #9A9083; }
+.popup-btn.secondary:hover { background: rgba(255,255,255,0.12); }
+
+/* ═══ AI SETTINGS BUTTON ═══ */
+.ai-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid rgba(212,168,67,0.25); border-radius: 4px;
+  background: transparent; color: #7A7062; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 0.35rem;
+}
+.ai-btn:hover { border-color: rgba(212,168,67,0.5); color: #BDB3A2; }
+.ai-btn.ai-active { border-color: rgba(80,160,80,0.4); color: #7AB87A; }
+.ai-btn.ai-active:hover { border-color: rgba(80,160,80,0.7); }
+.ai-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+/* ═══ AI SETTINGS MODAL ═══ */
+.ai-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.ai-modal-overlay.open { display: flex; }
+.ai-modal {
+  background: #1A2738; border: 1px solid rgba(212,168,67,0.2);
+  border-radius: 12px; padding: 1.8rem; width: 500px; max-width: calc(100vw - 2rem);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+.ai-modal h2 {
+  font-family: 'Crimson Pro', serif; font-weight: 400;
+  color: #DDD3C0; font-size: 1.3rem; margin-bottom: 1.1rem;
+}
+.ai-provider-cards {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 0.6rem;
+  margin-bottom: 1.1rem;
+}
+.ai-provider-card {
+  background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 0.85rem 0.75rem; cursor: pointer;
+  transition: all 0.18s; position: relative;
+}
+.ai-provider-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(212,168,67,0.3); }
+.ai-provider-card.selected { border-color: var(--cave-glow); background: rgba(212,168,67,0.08); }
+.ai-card-title {
+  font-family: 'DM Sans', sans-serif; font-weight: 600;
+  font-size: 0.8rem; color: #DDD3C0; margin-bottom: 0.35rem;
+}
+.ai-card-desc {
+  font-family: 'DM Sans', sans-serif; font-size: 0.72rem;
+  color: #7A7A6A; line-height: 1.45;
+}
+.ai-card-badge {
+  font-family: 'DM Sans', sans-serif; font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  display: inline-block; padding: 0.15rem 0.45rem; border-radius: 3px;
+  margin-top: 0.55rem;
+}
+.ai-badge-paid { background: rgba(122,59,16,0.35); color: #D4956A; }
+.ai-badge-free { background: rgba(40,120,60,0.3); color: #7EC88A; }
+.ai-badge-none { background: rgba(90,90,90,0.3); color: #888; }
+.ai-badge-groq { background: rgba(60,80,160,0.3); color: #8AABE0; }
+.ai-key-section { margin-bottom: 1.1rem; }
+.ai-key-section input {
+  width: 100%; padding: 0.6rem 0.75rem;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(212,168,67,0.2);
+  border-radius: 5px; color: #DDD3C0; font-family: monospace;
+  font-size: 0.82rem; outline: none; margin-bottom: 0.35rem;
+}
+.ai-key-section input:focus { border-color: rgba(212,168,67,0.5); }
+.ai-key-hint {
+  font-family: 'DM Sans', sans-serif; font-size: 0.7rem;
+  color: #555A50; line-height: 1.4;
+}
+.ai-key-hint a { color: var(--cave-glow); text-decoration: none; }
+.ai-key-hint a:hover { text-decoration: underline; }
+.ai-modal-actions { display: flex; gap: 0.5rem; }
+.ai-modal-actions button {
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500;
+  padding: 0.5rem 1.1rem; border-radius: 5px; border: none; cursor: pointer;
+  transition: background 0.15s;
+}
+.am-save { background: var(--cave-glow); color: var(--cave-dark); flex: 1; }
+.am-save:hover { background: #E0B84E; }
+.am-cancel { background: rgba(255,255,255,0.06); color: #9A9083; }
+.am-cancel:hover { background: rgba(255,255,255,0.12); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 860px) {
+  .main-container { grid-template-columns: 1fr; height: auto; }
+  .comment-column { border-top: 1px solid var(--comment-border); max-height: 50vh; }
+  .text-column { padding: 1.5rem 1.2rem; max-height: none; }
+  .tooltip { width: 260px; }
+  .header-inner { flex-direction: column; }
+  .header-right { align-items: flex-start; }
+  .instructions { text-align: left; }
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-text">
+      <h1 id="headerTitle">Georgics I</h1>
+      <div class="subtitle" id="headerSubtitle">Virgil · Georgics · Book 1, Lines 1-12 · tr. Dryden</div>
+    </div>
+    <div class="header-right">
+      <div class="lang-toggles">
+        <button class="lang-btn active" data-lang="la" onclick="switchLang('la')">Latin</button>
+        <button class="lang-btn" data-lang="input" onclick="switchLang('input')">Interlinear</button>
+      </div>
+      <div class="instructions">
+        <em>Select any text</em> to ask a question · <em>Interlinear</em> for custom translations
+      </div>
+      <button class="ai-btn" id="saveTranslationsBtn" style="display:none" onclick="downloadTranslations()">Download translations</button>
+    </div>
+  </div>
+</header>
+
+<!-- AI Settings Modal -->
+<div class="ai-modal-overlay" id="aiModalOverlay" onclick="if(event.target===this)closeAIModal()">
+  <div class="ai-modal">
+    <h2>AI Assistant</h2>
+    <div class="ai-provider-cards">
+      <div class="ai-provider-card" id="card-anthropic" onclick="selectProvider('anthropic')">
+        <div class="ai-card-title">Anthropic Claude</div>
+        <div class="ai-card-desc">Your own key. Claude Sonnet — powerful and precise.</div>
+        <div class="ai-card-badge ai-badge-paid">Own Key</div>
+      </div>
+      <div class="ai-provider-card" id="card-gemini" onclick="selectProvider('gemini')">
+        <div class="ai-card-title">Gemini 2.0 Flash</div>
+        <div class="ai-card-desc">Free tier via Google. Use a personal Gmail account.</div>
+        <div class="ai-card-badge ai-badge-free">Free</div>
+      </div>
+      <div class="ai-provider-card" id="card-groq" onclick="selectProvider('groq')">
+        <div class="ai-card-title">Groq (Llama 3.3)</div>
+        <div class="ai-card-desc">Free tier. Any email — no Google account needed.</div>
+        <div class="ai-card-badge ai-badge-groq">Free</div>
+      </div>
+      <div class="ai-provider-card" id="card-none" onclick="selectProvider('none')">
+        <div class="ai-card-title">No AI</div>
+        <div class="ai-card-desc">Read and annotate without AI assistance.</div>
+        <div class="ai-card-badge ai-badge-none">Off</div>
+      </div>
+    </div>
+    <div class="ai-key-section" id="aiKeySection" style="display:none">
+      <input type="password" id="aiKeyInput" placeholder="Paste your API key here…" autocomplete="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')saveAISettings();if(event.key==='Escape')closeAIModal()">
+      <div class="ai-key-hint" id="aiKeyHint">Stored only in your browser · Never in the source code</div>
+    </div>
+    <div class="ai-modal-actions">
+      <button class="am-save" onclick="saveAISettings()">Save</button>
+      <button class="am-cancel" onclick="closeAIModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="text-column" id="textColumn"></div>
+  <div class="comment-column" id="commentColumn">
+    <div class="margin-header">
+      <div class="margin-header-title">
+        <span>Margin Notes</span>
+        <span class="margin-header-subtitle">Personal — Auto-saved</span>
+      </div>
+      <div class="margin-header-actions">
+        <button class="margin-header-btn" onclick="exportNotes()" title="Download notes as JSON">↓ Export</button>
+        <button class="margin-header-btn" onclick="document.getElementById('importNotesInput').click()" title="Load notes from a file">↑ Import</button>
+        <input type="file" id="importNotesInput" accept=".json" onchange="importNotes(event)">
+        <span class="comment-count" id="commentCount" style="display:none">0</span>
+      </div>
+    </div>
+    <div id="commentList">
+      <div class="notes-filters" id="notesFilters" style="display:none;">
+        <select class="notes-filter" id="tagFilter" title="Filter by note type">
+          <option value="all">All types</option>
+          <option value="grammar">Grammar</option>
+          <option value="vocabulary">Vocabulary</option>
+          <option value="style">Style/Poetics</option>
+          <option value="culture">Culture/History</option>
+          <option value="translation">Translation choice</option>
+        </select>
+        <select class="notes-filter" id="lineFilter" title="Filter by Latin line">
+          <option value="all">All lines</option>
+        </select>
+      </div>
+      <div class="empty-state" id="emptyState">
+        <div class="icon">✎</div>
+        Select any passage in the text,<br>then ask a question.<br>
+        Your thread will appear here.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="selection-popup" id="selectionPopup">
+  <div class="popup-passage" id="popupPassage"></div>
+  <input type="text" id="popupInput" placeholder="Ask about this passage…" autocomplete="off">
+  <div class="popup-tag-row" id="popupTagRow">
+    <select id="popupTag" class="popup-tag-select" title="Choose note type">
+      <option value="grammar">Grammar</option>
+      <option value="vocabulary">Vocabulary</option>
+      <option value="style">Style/Poetics</option>
+      <option value="culture">Culture/History</option>
+      <option value="translation">Translation choice</option>
+    </select>
+  </div>
+  <div class="popup-actions">
+    <button class="popup-btn secondary" onclick="closePopup()">Cancel</button>
+    <button class="popup-btn primary" id="popupAskBtn" onclick="submitComment()">Ask</button>
+  </div>
+</div>
+
+<script>
+// ═════════════════════════════════════════════
+// TEXT DATA — Latin and English (Dryden translation)
+// ═════════════════════════════════════════════
+const TEXTS = {
+  la: {
+    "id": "georgics-i-latin",
+    "title": "Georgics I",
+    "author": "Virgil",
+    "source": "Georgics",
+    "reference": "Book 1, Lines 1-42",
+    "translator": "",
+    "language": "la",
+    "sections": [{
+      "id": "opening",
+      "label": "Invocation and Prayer to the Gods",
+      "title": "",
+      "paragraphs": [
+        {"text": "Quid faciat laetas segetes, quo sidere terram"},
+        {"text": "vertere, Maecenas, ulmisque adiungere vitis"},
+        {"text": "conveniat, quae cura boum, qui cultus habendo"},
+        {"text": "sit pecori, apibus quanta experientia parcis,"},
+        {"text": "hinc canere incipiam. Vos, o clarissima mundi"},
+        {"text": "lumina, labentem caelo quae ducitis annum,"},
+        {"text": "Liber et alma Ceres, vestro si munere tellus"},
+        {"text": "Chaoniam pingui glandem mutavit arista,"},
+        {"text": "poculaque inventis Acheloia miscuit uvis:"},
+        {"text": "o decus, o famae merito pars maxima nostrae,"},
+        {"text": "Maecenas, pelago volans daedala pinnis"},
+        {"text": "nescio qua praeter solitum dulcedine laedit."},
+        {"text": "ferte simul Faunique pedem Dryadesque puellae:"},
+        {"text": "munera uestra cano); tuque o, cui prima frementem"},
+        {"text": "fudit equum magno tellus percussa tridenti,"},
+        {"text": "Neptune; et cultor nemorum, cui pinguia Ceae"},
+        {"text": "ter centum niuei tondent dumeta iuuenci;"},
+        {"text": "ipse nemus linquens patrium saltusque Lycaei"},
+        {"text": "Pan, ouium custos, tua si tibi Maenala curae,"},
+        {"text": "adsis, o Tegeaee, fauens, oleaeque Minerua"},
+        {"text": "inuentrix, uncique puer monstrator aratri,"},
+        {"text": "et teneram ab radice ferens, Siluane, cupressum:"},
+        {"text": "dique deaeque omnes, studium quibus arua tueri,"},
+        {"text": "quique nouas alitis non ullo semine fruges"},
+        {"text": "quique satis largum caelo demittitis imbrem."},
+        {"text": "tuque adeo, quem mox quae sint habitura deorum"},
+        {"text": "concilia incertum est, urbisne inuisere, Caesar,"},
+        {"text": "terrarumque uelis curam, et te maximus orbis"},
+        {"text": "auctorem frugum tempestatumque potentem"},
+        {"text": "accipiat cingens materna tempora myrto;"},
+        {"text": "an deus immensi uenias maris ac tua nautae"},
+        {"text": "numina sola colant, tibi seruiat ultima Thule,"},
+        {"text": "teque sibi generum Tethys emat omnibus undis;"},
+        {"text": "anne nouum tardis sidus te mensibus addas,"},
+        {"text": "qua locus Erigonen inter Chelasque sequentis"},
+        {"text": "panditur (ipse tibi iam bracchia contrahit ardens"},
+        {"text": "Scorpius et caeli iusta plus parte reliquit);"},
+        {"text": "quidquid eris (nam te nec sperant Tartara regem,"},
+        {"text": "nec tibi regnandi ueniat tam dira cupido,"},
+        {"text": "quamuis Elysios miretur Graecia campos"},
+        {"text": "nec repetita sequi curet Proserpina matrem),"},
+        {"text": "da facilem cursum atque audacibus adnue coeptis,"},
+        {"text": "ignarosque uiae mecum miseratus agrestis"},
+        {"text": "ingredere et uotis iam nunc adsuesce uocari."}
+      ]
+    }]
+  },
+  en: {
+    "id": "georgics-i-english",
+    "title": "Georgics I",
+    "author": "Virgil",
+    "source": "Georgics",
+    "reference": "Book 1, Lines 1-42 · tr. Dryden",
+    "translator": "John Dryden",
+    "language": "en",
+    "sections": [{
+      "id": "opening",
+      "label": "Invocation and Prayer to the Gods",
+      "title": "",
+      "paragraphs": [
+        {"text": "What makes the cornfield smile; beneath what star"},
+        {"text": "Maecenas, it is meet to turn the sod"},
+        {"text": "Or marry elm with vine; how tend the steer;"},
+        {"text": "What pains, or what to cattle due; how large"},
+        {"text": "The experience that to bees belongs; this now"},
+        {"text": "I sing. Ye deities, who fields and plains"},
+        {"text": "Govern, and ye who rule the gliding year,"},
+        {"text": "Bacchus and Ceres, with your gifts, if ye"},
+        {"text": "Have changed the acorn for the full-eared wheat,"},
+        {"text": "And mingled with the grape's new vintage, cups"},
+        {"text": "Of Achelous; and thou, O thou, the grace"},
+        {"text": "Of my renown, and half my fame, Maecenas,"},
+        {"text": "And thou, who on the Daedalian wings dost fly,"},
+        {"text": "With sweetness not thy wont dost wound my heart."},
+        {"text": "Bring then your voices, Fauns, and Dryads, bring:"},
+        {"text": "Your gifts I sing. And thou, whose trident first"},
+        {"text": "Shook the wide earth, and from the bottom roused"},
+        {"text": "The bellowing deep, great Neptune; thou, whose care"},
+        {"text": "Three hundred snow-white oxen graze, whose woods"},
+        {"text": "Are green with Cean olives; thou, who leav'st"},
+        {"text": "Thy native woods and Lycian groves, great Pan,"},
+        {"text": "Shepherd of flocks; if Maenalus be dear"},
+        {"text": "To thee, and Tegea's founts, propitious come,"},
+        {"text": "And Pallas, finder of the olive-tree,"},
+        {"text": "And thou, young Ceres, teacher of the plow,"},
+        {"text": "And thou, who from the root dost bear the pine,"},
+        {"text": "Sylvanus; all ye gods and goddesses,"},
+        {"text": "Who love the fields, who give the ripening fruits,"},
+        {"text": "Who pour down plenty from the skies above,"},
+        {"text": "And Caesar thou, uncertain yet what gods"},
+        {"text": "Will call thee, whether thou wilt visit towns,"},
+        {"text": "Or rule the earth, and be the orb's great lord,"},
+        {"text": "Receive the crown of mother Ceres' myrtle,"},
+        {"text": "Author of fruits and seasons; or if thou"},
+        {"text": "Wilt be the god of seas immense, and sailors"},
+        {"text": "Alone adore thee, and far Thule serve,"},
+        {"text": "And Tethys with her waves embrace thee as"},
+        {"text": "Her son-in-law; or if thou add'st a star"},
+        {"text": "To the slow months, where'er the space is found"},
+        {"text": "'Twixt Virgin and the following Scales, where now"},
+        {"text": "The burning Scorpion contracts his arms,"},
+        {"text": "And leaves more than his just part of the sky;"},
+        {"text": "What'er thou art (for Tartarus expects"},
+        {"text": "No king from thee, nor doth thy soul desire"},
+        {"text": "So dire a reign, though Greece admire the fields"},
+        {"text": "Of Elysium, and Proserpine return"},
+        {"text": "Not to her mother), give an easy course"},
+        {"text": "To my bold work, and pitying the clown"},
+        {"text": "Unskilled in arts, come with me, and be used"},
+        {"text": "To hear thy prayers."}
+      ]
+    }]
+  }
+};
+
+// Annotations (keyed by language, then by a text snippet to match against)
+const ANNOTATIONS = {
+  la: [
+    {match: "Quid faciat laetas segetes", note: "Opening question: 'What makes crops happy?' Sets the didactic tone of the Georgics, teaching practical farming."},
+    {match: "quo sidere terram vertere", note: "'Under what star to turn the soil' — Refers to astrology in Roman agriculture; timing plowing by constellations."},
+    {match: "ulmisque adiungere vitis", note: "'To join vines to elms' — Ancient technique of training grapevines up elm trees for support."},
+    {match: "Liber et alma Ceres", note: "Bacchus (wine) and Ceres (grain) — Gods of agriculture, invoked for their civilizing gifts."},
+    {match: "Chaoniam pingui glandem mutavit arista", note: "'Changed Chaonian acorn for fat wheat-ear' — From primitive acorns to cultivated grain, symbolizing progress."},
+    {match: "poculaque inventis Acheloia miscuit uvis", note: "'Mixed Achelous' cups with discovered grapes' — Wine from grapes, Achelous being a river god."},
+    {match: "pelago volans daedala pinnis", note: "'Pelagus flying with Daedalian wings' — Likely refers to a ship or Cupid, with 'Daedalian' meaning skillful craftsmanship."},
+    {match: "Faunique pedem Dryadesque puellae", note: "Fauns: Roman woodland spirits like Greek satyrs. Dryads: Nymphs inhabiting trees."},
+    {match: "cui prima frementem fudit equum", note: "Neptune struck the earth with his trident, creating the first horse from the foam."},
+    {match: "pinguia Ceae ter centum niuei tondent dumeta iuuenci", note: "Cea: Island of Ceos, famous for its olives. 300 snow-white oxen graze in thickets."},
+    {match: "saltusque Lycaei Pan", note: "Pan: Greek god of shepherds, wilds, and music; Lycaeus is a mountain in Arcadia."},
+    {match: "Maenala curae", note: "Maenalus: Mountain in Arcadia, sacred to Pan."},
+    {match: "Tegeaee", note: "Tegea: City in Arcadia, associated with Pan."},
+    {match: "oleaeque Minerua inuentrix", note: "Minerva (Athena) invented the olive tree and gave it to Athens."},
+    {match: "uncique puer monstrator aratri", note: "Young Ceres taught humanity the art of plowing."},
+    {match: "teneram ab radice ferens, Siluane, cupressum", note: "Silvanus: Roman god of woods and fields, often depicted carrying a cypress branch."},
+    {match: "urbisne inuisere, Caesar", note: "Caesar: Octavian (future Augustus), uncertain whether he'll rule cities or the world."},
+    {match: "materna tempora myrto", note: "Myrtle crown: Sacred to Venus, mother of Aeneas and ancestress of the Julians."},
+    {match: "tibi seruiat ultima Thule", note: "Thule: Mythical northern island, the farthest point of the known world."},
+    {match: "Tethys emat omnibus undis", note: "Tethys: Titaness of the sea, mother of rivers and oceans."},
+    {match: "Erigonen inter Chelasque sequentis", note: "Erigone: Virgo constellation. Chelae: Libra (Scales), following Virgo."},
+    {match: "ardens Scorpius", note: "Scorpius: Scorpion constellation, associated with summer heat."},
+    {match: "Tartara regem", note: "Tartarus: The deepest part of the underworld, ruled by Pluto."},
+    {match: "Elysios miretur Graecia campos", note: "Elysian fields: Paradise in the underworld for heroes and the virtuous."},
+    {match: "Proserpina matrem", note: "Proserpine (Persephone): Goddess of spring, abducted by Pluto, spends half the year in Hades."}
+  ],
+  en: [
+    {match: "What makes the cornfield smile", note: "Poetic way of asking what conditions make crops thrive. 'Smile' personifies the field."},
+    {match: "beneath what star", note: "Roman farmers consulted stars for timing agricultural tasks."},
+    {match: "marry elm with vine", note: "Ancient arboriculture: vines trained up trees for better sun exposure."},
+    {match: "Bacchus and Ceres", note: "Gods of wine and grain — central to Roman agricultural religion."},
+    {match: "changed the acorn for the full-eared wheat", note: "Progress from foraging to farming, a key theme in Georgics."},
+    {match: "mingled with the grape's new vintage, cups Of Achelous", note: "Wine mixed with water from the river Achelous."},
+    {match: "on the Daedalian wings dost fly", note: "Daedalus crafted wings; here likely Cupid or a ship."},
+    {match: "Fauns, and Dryads", note: "Fauns: Roman satyr-like spirits. Dryads: Tree nymphs."},
+    {match: "whose trident first Shook the wide earth", note: "Neptune's trident strike created horses from sea foam."},
+    {match: "whose woods Are green with Cean olives", note: "Ceos: Greek island renowned for olive cultivation."},
+    {match: "Lycian groves, great Pan", note: "Pan: Shepherd god from Arcadia; Lycia is a region in Asia Minor."},
+    {match: "Maenalus be dear To thee", note: "Maenalus: Arcadian mountain range, home to Pan."},
+    {match: "Tegea's founts", note: "Tegea: Ancient Arcadian city, associated with Pan."},
+    {match: "finder of the olive-tree", note: "Athena (Minerva) gifted the olive to Athens as a symbol of wisdom."},
+    {match: "young Ceres, teacher of the plow", note: "Ceres (Demeter) taught agriculture to humanity."},
+    {match: "from the root dost bear the pine, Sylvanus", note: "Sylvanus: Roman forest deity, protector of woods."},
+    {match: "Caesar thou, uncertain yet what gods Will call thee", note: "Octavian, wondering if he'll be deified as a city ruler or world emperor."},
+    {match: "mother Ceres' myrtle", note: "Myrtle sacred to Venus, mother of the Julian line."},
+    {match: "far Thule serve", note: "Thule: Legendary northern land, edge of the world."},
+    {match: "Tethys with her waves embrace thee", note: "Tethys: Primordial sea goddess, wife of Oceanus."},
+    {match: "Virgin and the following Scales", note: "Virgo (Erigone) and Libra constellations."},
+    {match: "burning Scorpion", note: "Scorpius constellation, linked to summer."},
+    {match: "Tartarus expects No king from thee", note: "Underworld won't claim Caesar; he'll be deified."},
+    {match: "Elysium", note: "Blessed afterlife realm for the virtuous."},
+    {match: "Proserpine return Not to her mother", note: "Persephone stays in Hades half the year, causing winter."}
+  ]
+};
+
+// ═══════════════════════════════════
+// NOTES PERSISTENCE
+// ═══════════════════════════════════
+const NOTES_STORAGE = 'georgics_margin_notes';
+const USER_TRANSLATIONS_STORAGE = 'georgics_user_translations';
+
+function saveNotesToStorage() {
+  localStorage.setItem(NOTES_STORAGE, JSON.stringify(comments));
+}
+
+function loadNotesFromStorage() {
+  const stored = localStorage.getItem(NOTES_STORAGE);
+  if (stored) {
+    try {
+      comments = JSON.parse(stored);
+      comments = comments.map(c => {
+        if (c && c.answer === 'No AI provider selected.') {
+          return { ...c, answer: 'Awaiting teacher response.' };
+        }
+        return c;
+      });
+      commentId = comments.length > 0 ? Math.max(...comments.map(c => c.id)) : 0;
+    } catch (e) {
+      console.error('Failed to load notes:', e);
+      comments = [];
+      commentId = 0;
+    }
+  }
+}
+
+function loadUserTranslationsFromStorage() {
+  const stored = localStorage.getItem(USER_TRANSLATIONS_STORAGE);
+  if (stored) {
+    try {
+      userTranslations = JSON.parse(stored);
+    } catch (e) {
+      userTranslations = [];
+    }
+  }
+}
+
+function saveUserTranslationsToStorage() {
+  localStorage.setItem(USER_TRANSLATIONS_STORAGE, JSON.stringify(userTranslations));
+}
+
+function exportNotes() {
+  if (comments.length === 0) {
+    alert('No notes to export yet.');
+    return;
+  }
+  const now = new Date().toISOString().split('T')[0];
+  const filename = `georgics-notes-${now}.json`;
+  const data = {
+    exported: new Date().toISOString(),
+    text: currentLang === 'en' ? 'English' : 'Latin',
+    notes: comments
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importNotes(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data.notes)) throw new Error('Invalid notes format');
+      comments = data.notes;
+      commentId = comments.length > 0 ? Math.max(...comments.map(c => c.id)) : 0;
+      saveNotesToStorage();
+      renderComments();
+      emptyState.style.display = comments.length > 0 ? 'none' : 'block';
+    } catch (err) {
+      alert('Could not import notes: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ═══════════════════════════════════
+// AI PROVIDER MANAGEMENT
+// ═══════════════════════════════════
+const PROVIDER_KEY = 'georgics_provider';
+const ANTHROPIC_KEY = 'georgics_anthropic_key';
+const GEMINI_KEY = 'georgics_gemini_key';
+const GROQ_KEY = 'georgics_groq_key';
+
+function getProvider() { return localStorage.getItem(PROVIDER_KEY) || 'none'; }
+function getStoredKey(provider) {
+  if (provider === 'anthropic') return localStorage.getItem(ANTHROPIC_KEY) || '';
+  if (provider === 'gemini') return localStorage.getItem(GEMINI_KEY) || '';
+  if (provider === 'groq') return localStorage.getItem(GROQ_KEY) || '';
+  return '';
+}
+
+let _modalProvider = 'none';
+
+function updateAIBtn() {
+  const btn = document.getElementById('aiBtn');
+  const label = document.getElementById('aiBtnLabel');
+  if (!btn || !label) return;
+  const p = getProvider();
+  if (p === 'anthropic') {
+    btn.classList.add('ai-active');
+    label.textContent = getStoredKey('anthropic') ? 'AI: Claude ✓' : 'AI: Claude (no key)';
+  } else if (p === 'gemini') {
+    btn.classList.add('ai-active');
+    label.textContent = getStoredKey('gemini') ? 'AI: Gemini ✓' : 'AI: Gemini (no key)';
+  } else if (p === 'groq') {
+    btn.classList.add('ai-active');
+    label.textContent = getStoredKey('groq') ? 'AI: Groq ✓' : 'AI: Groq (no key)';
+  } else {
+    btn.classList.remove('ai-active');
+    label.textContent = 'AI: Off';
+  }
+}
+
+function openAIModal() {
+  _modalProvider = getProvider();
+  _refreshModalCards();
+  _refreshKeySection();
+  document.getElementById('aiModalOverlay').classList.add('open');
+  if (_modalProvider !== 'none') {
+    setTimeout(() => document.getElementById('aiKeyInput').focus(), 50);
+  }
+}
+
+function closeAIModal() {
+  document.getElementById('aiModalOverlay').classList.remove('open');
+}
+
+function selectProvider(p) {
+  _modalProvider = p;
+  _refreshModalCards();
+  _refreshKeySection();
+  if (p !== 'none') setTimeout(() => document.getElementById('aiKeyInput').focus(), 30);
+}
+
+function _refreshModalCards() {
+  ['anthropic','gemini','groq','none'].forEach(p => {
+    document.getElementById('card-' + p).classList.toggle('selected', p === _modalProvider);
+  });
+}
+
+function _refreshKeySection() {
+  const section = document.getElementById('aiKeySection');
+  const input = document.getElementById('aiKeyInput');
+  const hint = document.getElementById('aiKeyHint');
+  if (_modalProvider === 'none') {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  const stored = getStoredKey(_modalProvider);
+  input.value = stored ? '••••••••••••••••' : '';
+  if (_modalProvider === 'anthropic') {
+    input.placeholder = 'sk-ant-…';
+    hint.innerHTML = 'Stored only in your browser · Never in source code · Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>';
+  } else if (_modalProvider === 'gemini') {
+    input.placeholder = 'AIza…';
+    hint.innerHTML = 'Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a> to get your free key — <strong style="color:#D4A843">use a personal Gmail, not a school account.</strong> Stored only in your browser. Never shared.';
+  } else {
+    input.placeholder = 'gsk_…';
+    hint.innerHTML = 'Visit <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a> to get your free key — any email works, no Google account needed. Stored only in your browser. Never shared.';
+  }
+}
+
+function saveAISettings() {
+  const val = document.getElementById('aiKeyInput').value.trim();
+  localStorage.setItem(PROVIDER_KEY, _modalProvider);
+  if (_modalProvider !== 'none' && val && !val.startsWith('•')) {
+    const storageKey = _modalProvider === 'anthropic' ? ANTHROPIC_KEY
+                     : _modalProvider === 'gemini' ? GEMINI_KEY
+                     : GROQ_KEY;
+    localStorage.setItem(storageKey, val);
+  }
+  closeAIModal();
+  updateAIBtn();
+}
+
+// ═══════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════
+let currentLang = 'la';
+let selectedText = '';
+let selectedLineIndex = null;
+let comments = [];
+let commentId = 0;
+let userTranslations = [];
+let currentTagFilter = 'all';
+let currentLineFilter = 'all';
+
+const textCol = document.getElementById('textColumn');
+const popup = document.getElementById('selectionPopup');
+const popupPassage = document.getElementById('popupPassage');
+const popupInput = document.getElementById('popupInput');
+const popupTag = document.getElementById('popupTag');
+const popupTagRow = document.getElementById('popupTagRow');
+const commentList = document.getElementById('commentList');
+const emptyState = document.getElementById('emptyState');
+const commentCountEl = document.getElementById('commentCount');
+const notesFilters = document.getElementById('notesFilters');
+const tagFilter = document.getElementById('tagFilter');
+const lineFilter = document.getElementById('lineFilter');
+
+// ═══════════════════════════════════
+// RENDER TEXT
+// ═══════════════════════════════════
+function renderText() {
+  const data = TEXTS['la']; // Always use Latin as base for interlinear
+  if (!data) return;
+
+  document.getElementById('headerTitle').textContent = data.title;
+  document.getElementById('headerSubtitle').textContent =
+    `${data.author} · ${data.source} · ${data.reference}${currentLang === 'en' ? ' · tr. ' + TEXTS['en'].translator : currentLang === 'input' ? ' · Interlinear Input' : ''}`;
+
+  let html = '';
+  let lineIndex = 0;
+  for (const sec of data.sections) {
+    if (sec.label) {
+      html += `<div class="section-label">${escHtml(sec.label)}</div>`;
+    }
+    if (sec.title) {
+      html += `<div class="section-title">${escHtml(sec.title)}</div>`;
+    }
+    for (let i = 0; i < sec.paragraphs.length; i++) {
+      const p = sec.paragraphs[i];
+      if (currentLang === 'input') {
+        const textWithAnnotations = applyAnnotations(p.text, 'la');
+        html += `<div class="text-paragraph" data-line-index="${lineIndex}">${textWithAnnotations}</div>`;
+        html += `<input class="interlinear-input" data-index="${lineIndex}" value="${userTranslations[lineIndex] || ''}" placeholder="Enter your translation..." oninput="updateUserTranslation(${lineIndex}, this.value)">`;
+      } else {
+        const lang = currentLang;
+        const textWithAnnotations = applyAnnotations(p.text, lang);
+        html += `<div class="text-paragraph" data-line-index="${lineIndex}">${textWithAnnotations}</div>`;
+      }
+      lineIndex += 1;
+    }
+  }
+  textCol.innerHTML = html;
+}
+
+function applyAnnotations(text, lang) {
+  return escHtml(text);
+}
+
+// ═══════════════════════════════════
+// LANGUAGE SWITCHING
+// ═══════════════════════════════════
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  document.body.classList.toggle('interlinear-mode', currentLang === 'input');
+  if (currentLang === 'input') {
+    closePopup();
+  }
+  renderText();
+  updateFilterControls();
+  renderComments();
+  const saveBtn = document.getElementById('saveTranslationsBtn');
+  if (saveBtn) {
+    saveBtn.style.display = currentLang === 'input' ? 'inline-flex' : 'none';
+  }
+}
+
+function updateUserTranslation(index, value) {
+  userTranslations[index] = value;
+  saveUserTranslationsToStorage();
+}
+
+function downloadTranslations() {
+  const items = [];
+  let index = 0;
+  for (const sec of TEXTS.la.sections) {
+    for (const p of sec.paragraphs) {
+      items.push({
+        latin: p.text,
+        translation: userTranslations[index] || ''
+      });
+      index += 1;
+    }
+  }
+
+  const payload = {
+    exported: new Date().toISOString(),
+    mode: 'interlinear',
+    translations: items
+  };
+  const filename = `georgics-interlinear-translations-${new Date().toISOString().slice(0, 10)}.json`;
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════
+// SELECTION → POPUP
+// ═══════════════════════════════════
+textCol.addEventListener('mouseup', (e) => {
+  if (currentLang === 'input') return;
+  const sel = window.getSelection();
+  const text = sel.toString().trim();
+  if (text.length < 3) return;
+  if (e.target.closest('.tooltip')) return;
+
+  selectedText = text;
+  selectedLineIndex = getSelectedLineIndex(sel);
+  popupPassage.textContent = text.length > 100 ? text.substring(0, 100) + '…' : text;
+  if (popupTagRow) {
+    popupTagRow.style.display = currentLang === 'la' ? 'block' : 'none';
+  }
+
+  const range = sel.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - 150;
+  let top = rect.bottom + 10;
+  if (left < 10) left = 10;
+  if (left + 300 > window.innerWidth) left = window.innerWidth - 310;
+  if (top + 180 > window.innerHeight) top = rect.top - 150;
+
+  popup.style.left = left + 'px';
+  popup.style.top = top + 'px';
+  popup.style.display = 'block';
+  setTimeout(() => popupInput.focus(), 50);
+});
+
+popupInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+  if (e.key === 'Escape') closePopup();
+});
+
+document.addEventListener('mousedown', (e) => {
+  if (!popup.contains(e.target) && popup.style.display === 'block') closePopup();
+});
+
+function closePopup() {
+  popup.style.display = 'none';
+  popupInput.value = '';
+  if (popupTag) popupTag.value = 'grammar';
+  selectedText = '';
+  selectedLineIndex = null;
+}
+
+function getSelectedLineIndex(selection) {
+  if (!selection || selection.rangeCount === 0) return null;
+  let node = selection.anchorNode || selection.getRangeAt(0).startContainer;
+  if (!node) return null;
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+  if (!node || !node.closest) return null;
+  const para = node.closest('.text-paragraph');
+  if (!para) return null;
+  const raw = para.getAttribute('data-line-index');
+  if (raw === null) return null;
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) ? parsed : null;
+}
+
+function formatLineLabel(index) {
+  return Number.isInteger(index) ? `L${index + 1}` : '';
+}
+
+function updateLineFilterOptions() {
+  if (!lineFilter) return;
+  const previousValue = currentLineFilter;
+  const latinLines = [...new Set(
+    comments
+      .filter(c => c.lang === 'la' && Number.isInteger(c.lineIndex))
+      .map(c => c.lineIndex)
+  )].sort((a, b) => a - b);
+
+  lineFilter.innerHTML = '<option value="all">All lines</option>';
+  latinLines.forEach(idx => {
+    const opt = document.createElement('option');
+    opt.value = String(idx);
+    opt.textContent = formatLineLabel(idx);
+    lineFilter.appendChild(opt);
+  });
+
+  if (previousValue === 'all' || latinLines.includes(Number(previousValue))) {
+    lineFilter.value = previousValue;
+  } else {
+    currentLineFilter = 'all';
+    lineFilter.value = 'all';
+  }
+}
+
+function updateFilterControls() {
+  if (!notesFilters) return;
+  notesFilters.style.display = currentLang === 'la' ? 'flex' : 'none';
+  updateLineFilterOptions();
+}
+
+// ═══════════════════════════════════
+// COMMENTS
+// ═══════════════════════════════════
+function submitComment() {
+  const question = popupInput.value.trim();
+  if (!question || !selectedText) return;
+  const tag = popupTag ? popupTag.value : 'grammar';
+  const id = ++commentId;
+  const comment = {
+    id,
+    passage: selectedText,
+    question,
+    tag,
+    lineIndex: currentLang === 'la' ? selectedLineIndex : null,
+    answer: 'Awaiting teacher response.',
+    followups: [],
+    lang: currentLang
+  };
+  comments.push(comment);
+  saveNotesToStorage();
+  closePopup();
+  renderComments();
+  emptyState.style.display = 'none';
+
+  const el = document.getElementById('comment-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function submitFollowup(cid) {
+  const input = document.getElementById('followup-input-' + cid);
+  const question = input.value.trim();
+  if (!question) return;
+  const comment = comments.find(c => c.id === cid);
+  if (!comment) return;
+
+  const followup = { question, answer: 'Awaiting teacher response.' };
+  comment.followups.push(followup);
+  saveNotesToStorage();
+  input.value = '';
+  renderComments();
+}
+
+function renderComments() {
+  const threads = commentList.querySelectorAll('.comment-thread');
+  threads.forEach(t => t.remove());
+
+  updateLineFilterOptions();
+
+  const visibleComments = comments.filter(c => {
+    if (currentLang === 'la') {
+      const tag = c.tag || 'grammar';
+      const tagOk = currentTagFilter === 'all' || tag === currentTagFilter;
+      const lineOk = currentLineFilter === 'all' || String(c.lineIndex) === currentLineFilter;
+      return c.lang === 'la' && tagOk && lineOk;
+    }
+    return c.lang === currentLang;
+  });
+
+  const count = visibleComments.length;
+  commentCountEl.style.display = count > 0 ? 'inline' : 'none';
+  commentCountEl.textContent = count;
+  emptyState.style.display = count > 0 ? 'none' : '';
+
+  visibleComments.forEach(c => {
+    const thread = document.createElement('div');
+    thread.className = 'comment-thread';
+    thread.id = 'comment-' + c.id;
+
+    const tagLabel = c.tag || 'grammar';
+    let h = `<div class="comment-card">`;
+    h += `<div class="comment-header-meta">`;
+    h += `<span class="meta-pill">${escHtml(tagLabel)}</span>`;
+    if (Number.isInteger(c.lineIndex)) {
+      h += `<span class="meta-pill line">${escHtml(formatLineLabel(c.lineIndex))}</span>`;
+    }
+    h += `</div>`;
+    h += `<div class="comment-passage">"${escHtml(truncate(c.passage, 90))}"</div>`;
+    h += `<div class="comment-question">${escHtml(c.question)}</div>`;
+    h += c.answer ? `<div class="comment-answer">${escHtml(c.answer)}</div>` : `<div class="comment-answer loading">Thinking…</div>`;
+
+    c.followups.forEach(f => {
+      h += `<div class="sub-comment"><div class="comment-question">${escHtml(f.question)}</div>`;
+      h += f.answer ? `<div class="comment-answer">${escHtml(f.answer)}</div>` : `<div class="comment-answer loading">Thinking…</div>`;
+      h += `</div>`;
+    });
+
+    if (c.answer) {
+      h += `<div class="followup-row">`;
+      h += `<input class="followup-input" id="followup-input-${c.id}" placeholder="Follow up…" onkeydown="if(event.key==='Enter'){event.preventDefault();submitFollowup(${c.id})}">`;
+      h += `<button class="followup-btn" onclick="submitFollowup(${c.id})">Ask</button>`;
+      h += `</div>`;
+    }
+
+    h += `<div class="comment-meta"><span>${c.followups.length + 1} message${c.followups.length > 0 ? 's' : ''}</span>`;
+    h += `<button class="comment-delete" onclick="deleteComment(${c.id})">✕</button></div>`;
+    h += `</div>`;
+
+    thread.innerHTML = h;
+    commentList.appendChild(thread);
+  });
+}
+
+function deleteComment(id) {
+  comments = comments.filter(c => c.id !== id);
+  saveNotesToStorage();
+  renderComments();
+  if (comments.length === 0) emptyState.style.display = '';
+}
+
+function truncate(s, n) { return s.length > n ? s.substring(0, n) + '…' : s; }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+loadNotesFromStorage();
+loadUserTranslationsFromStorage();
+if (tagFilter) {
+  tagFilter.addEventListener('change', () => {
+    currentTagFilter = tagFilter.value;
+    renderComments();
+  });
+}
+if (lineFilter) {
+  lineFilter.addEventListener('change', () => {
+    currentLineFilter = lineFilter.value;
+    renderComments();
+  });
+}
+renderText();
+document.body.classList.toggle('interlinear-mode', currentLang === 'input');
+updateFilterControls();
+if (comments.length > 0) {
+  emptyState.style.display = 'none';
+  renderComments();
+}
+updateAIBtn();
+</script>
+</body>
+</html>

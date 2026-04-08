@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speak Latin — Latin Explorer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 48px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5ea;
+      z-index: 100;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 20px; font-size: .85em;
+    }
+    nav a { color: #6e6e73; text-decoration: none; }
+    nav a:hover { color: #1d1d1f; }
+    nav .sep { color: #d1d1d6; }
+    nav .cur { color: #1d1d1f; font-weight: 500; }
+
+    /* ── Header ── */
+    .page-header {
+      padding: 80px 24px 28px;
+      text-align: center;
+    }
+    .page-header h1 { font-size: 2.2em; font-weight: 700; letter-spacing: -.5px; margin-bottom: 8px; }
+    .page-header p { color: #6e6e73; font-size: .95em; line-height: 1.6; }
+
+    /* ── Era strip ── */
+    .era-strip {
+      display: flex; align-items: flex-start; justify-content: center;
+      gap: 24px; padding: 8px 20px 28px; flex-wrap: wrap;
+    }
+    .era-group { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .era-label {
+      font-size: .7em; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #bbb;
+    }
+    .char-row { display: flex; gap: 10px; }
+    .era-divider { color: #e5e5ea; font-size: 2em; padding-top: 36px; }
+
+    /* ── Character cards ── */
+    .char-card {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 10px 12px; border-radius: 12px;
+      border: 2px solid #e5e5ea; background: #f5f5f7;
+      cursor: pointer; transition: all .15s; min-width: 86px;
+    }
+    .char-card:hover { background: #ebebed; border-color: #d1d1d6; }
+    .char-card.active { border-color: var(--cc); background: var(--cc-faint); }
+    .card-avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; }
+    .card-name { font-size: .74em; font-weight: 600; text-align: center; line-height: 1.2; }
+    .card-dates { font-size: .64em; color: #aaa; }
+
+    /* ── Stage ── */
+    .stage {
+      max-width: 740px; margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid; grid-template-columns: 190px 1fr;
+      gap: 36px; align-items: start;
+    }
+
+    /* ── Avatar ── */
+    .avatar-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .avatar-wrap {
+      width: 168px; height: 168px; border-radius: 50%; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.13);
+    }
+    .avatar-wrap svg { width: 100%; height: 100%; display: block; }
+    .char-name-disp { font-size: .95em; font-weight: 700; text-align: center; line-height: 1.3; }
+    .char-sub-disp { font-size: .73em; color: #6e6e73; text-align: center; }
+
+    /* ── Content ── */
+    .content-col { padding-top: 4px; }
+
+    .item-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .nav-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1.5px solid #e5e5ea; background: white;
+      font-size: .9em; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: all .15s; color: #1d1d1f;
+    }
+    .nav-btn:hover:not(:disabled) { background: #f5f5f7; }
+    .nav-btn:disabled { opacity: .3; cursor: default; }
+    .item-dots { display: flex; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #d1d1d6; transition: background .2s; }
+    .dot.on { background: var(--cc, #1d1d1f); }
+
+    .item-type {
+      font-size: .68em; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #aaa; margin-bottom: 6px;
+    }
+    .latin-disp {
+      font-size: 2.1em; font-weight: 700; font-style: italic;
+      letter-spacing: -.3px; line-height: 1.15; margin-bottom: 5px;
+      color: var(--cc, #1d1d1f);
+    }
+    .english-disp { font-size: 1em; color: #6e6e73; margin-bottom: 14px; }
+
+    .phonetic-box {
+      background: #fffbf0; border: 1.5px solid #e8d870;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;
+    }
+    .phonetic-label {
+      font-size: .67em; text-transform: uppercase; letter-spacing: .08em;
+      color: #9a7c00; font-weight: 700; margin-bottom: 3px;
+    }
+    .phonetic-text { font-size: 1em; color: #5a4500; font-family: 'Georgia', serif; }
+
+    .note-disp { font-size: .83em; color: #6e6e73; line-height: 1.55; margin-bottom: 18px; }
+
+    .status-msg { min-height: 20px; font-size: .8em; color: #aaa; margin-bottom: 10px; }
+
+    /* ── Controls ── */
+    .controls { display: flex; flex-direction: column; gap: 9px; }
+    .btn-row { display: flex; gap: 9px; }
+    .btn {
+      flex: 1; padding: 12px 14px; border-radius: 10px; border: none;
+      font-size: .88em; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all .15s;
+    }
+    .btn-primary { background: var(--cc, #1d1d1f); color: white; }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
+    .btn-primary:disabled { opacity: .45; cursor: default; }
+    .btn-secondary { background: #f5f5f7; color: #1d1d1f; border: 1.5px solid #e5e5ea; }
+    .btn-secondary:hover:not(:disabled) { background: #ebebed; }
+    .btn-secondary:disabled { opacity: .4; cursor: default; }
+    .btn-secondary.recording {
+      background: #ff3b30; color: white; border-color: #ff3b30;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.75} }
+
+    /* ── Rules panel ── */
+    .rules-section { max-width: 740px; margin: 0 auto; padding: 0 20px 80px; }
+    details.rules { background: #f5f5f7; border-radius: 12px; overflow: hidden; }
+    details.rules summary {
+      padding: 14px 16px; font-size: .87em; font-weight: 600;
+      cursor: pointer; user-select: none; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    details.rules summary::after { content: '▸'; color: #aaa; font-size: .8em; }
+    details.rules[open] summary::after { content: '▾'; }
+    .rules-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: #e5e5ea; border-top: 1px solid #e5e5ea;
+    }
+    .rule-item { background: white; padding: 10px 14px; }
+    .rule-key { font-size: .8em; font-weight: 700; font-family: 'Georgia', serif; margin-bottom: 2px; }
+    .rule-val { font-size: .78em; color: #6e6e73; line-height: 1.4; }
+
+    /* ── Avatar image ── */
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+    /* ── Instructor mode ── */
+    .instr-toggle {
+      margin-left: auto; font-size: .75em; padding: 5px 11px;
+      border-radius: 6px; border: 1.5px solid #e5e5ea;
+      background: white; cursor: pointer; color: #6e6e73;
+      transition: all .15s; white-space: nowrap;
+    }
+    .instr-toggle:hover { background: #f5f5f7; }
+    .instr-toggle.on { background: #1a4a8b; color: white; border-color: #1a4a8b; }
+
+    .instr-banner {
+      display: none; background: #1a4a8b; color: white;
+      text-align: center; font-size: .82em; padding: 7px; font-weight: 600;
+      letter-spacing: .02em;
+    }
+    body.instructor-mode .instr-banner { display: block; }
+
+    .instr-controls {
+      display: none; margin-top: 12px; padding: 12px 14px;
+      background: #eef2fb; border-radius: 10px;
+      border: 1.5px solid #c0cce8;
+    }
+    body.instructor-mode .instr-controls { display: block; }
+    .instr-label {
+      font-size: .69em; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #1a4a8b; margin-bottom: 6px;
+    }
+    .instr-status {
+      font-size: .8em; color: #6e6e73; margin-bottom: 8px; min-height: 18px;
+    }
+    .instr-has-rec .instr-status { color: #1a8b4a; }
+
+    /* ── Responsive ── */
+    @media (max-width: 560px) {
+      .stage { grid-template-columns: 1fr; gap: 20px; }
+      .avatar-col { flex-direction: row; align-items: center; justify-content: center; gap: 16px; }
+      .avatar-wrap { width: 90px; height: 90px; flex-shrink: 0; }
+      .char-name-disp, .char-sub-disp { text-align: left; }
+      .latin-disp { font-size: 1.6em; }
+      .era-divider { display: none; }
+      .rules-grid { grid-template-columns: 1fr; }
+      .btn-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Latin Explorer</a>
+  <span class="sep">›</span>
+  <span class="cur">Speak Latin</span>
+  <button class="instr-toggle" id="instrToggle">Instructor Mode</button>
+</nav>
+<div class="instr-banner">Instructor Mode — your recordings will be heard by students instead of TTS</div>
+
+<div class="page-header">
+  <h1>Speak Latin</h1>
+  <p>Hear it from those who lived it — and those who still do.</p>
+</div>
+
+<div class="era-strip">
+  <div class="era-group">
+    <div class="era-label">The Ancients</div>
+    <div class="char-row" id="ancientRow"></div>
+  </div>
+  <div class="era-divider">|</div>
+  <div class="era-group">
+    <div class="era-label">Still Spoken Today</div>
+    <div class="char-row" id="modernRow"></div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="avatar-col">
+    <div class="avatar-wrap" id="avatarWrap"></div>
+    <div class="char-name-disp" id="charName"></div>
+    <div class="char-sub-disp" id="charSub"></div>
+  </div>
+  <div class="content-col">
+    <div class="item-nav">
+      <button class="nav-btn" id="prevBtn">&#8592;</button>
+      <div class="item-dots" id="itemDots"></div>
+      <button class="nav-btn" id="nextBtn">&#8594;</button>
+    </div>
+    <div class="item-type" id="itemType"></div>
+    <div class="latin-disp" id="latinDisp"></div>
+    <div class="english-disp" id="englishDisp"></div>
+    <div class="phonetic-box">
+      <div class="phonetic-label">Classical pronunciation</div>
+      <div class="phonetic-text" id="phoneticDisp"></div>
+    </div>
+    <div class="note-disp" id="noteDisp"></div>
+    <div class="status-msg" id="statusMsg"></div>
+    <div class="controls">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="hearBtn">&#128266; Hear it</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="recordBtn">&#127897; Record yourself</button>
+        <button class="btn btn-secondary" id="playBtn" disabled>&#9654; Play back</button>
+      </div>
+      <!-- Instructor-only recording panel -->
+      <div class="instr-controls" id="instrControls">
+        <div class="instr-label">&#127897; Instructor Recording</div>
+        <div class="instr-status" id="instrStatus">No recording yet for this phrase.</div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="instrRecBtn">&#127897; Record for students</button>
+          <button class="btn btn-secondary" id="instrPreviewBtn" disabled>&#9654; Preview</button>
+          <button class="btn btn-secondary" id="instrClearBtn" disabled style="flex:0;padding:12px 14px;">&#128465;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rules-section">
+  <details class="rules">
+    <summary>&#128218; Classical Latin Pronunciation Rules</summary>
+    <div class="rules-grid">
+      <div class="rule-item"><div class="rule-key">V</div><div class="rule-val">Always W — <em>veni</em> = "WAY-nee"</div></div>
+      <div class="rule-item"><div class="rule-key">C</div><div class="rule-val">Always K — <em>Cicero</em> = "KEE-kay-roh"</div></div>
+      <div class="rule-item"><div class="rule-key">G</div><div class="rule-val">Always hard — <em>ager</em> = "AH-gair"</div></div>
+      <div class="rule-item"><div class="rule-key">AE</div><div class="rule-val">Like "eye" — <em>alea</em> = "AH-lay-ah"</div></div>
+      <div class="rule-item"><div class="rule-key">QU</div><div class="rule-val">Always KW — <em>qui</em> = "kwee"</div></div>
+      <div class="rule-item"><div class="rule-key">I (before vowel)</div><div class="rule-val">Y sound — <em>iacta</em> = "YAHK-tah"</div></div>
+      <div class="rule-item"><div class="rule-key">R</div><div class="rule-val">Lightly trilled — tongue tap on roof of mouth</div></div>
+      <div class="rule-item"><div class="rule-key">Long vowels</div><div class="rule-val">Held twice as long as short vowels</div></div>
+      <div class="rule-item"><div class="rule-key">No silent letters</div><div class="rule-val">Every letter is pronounced, always</div></div>
+      <div class="rule-item"><div class="rule-key">Double consonants</div><div class="rule-val">Both sounded — <em>annus</em> &#8800; <em>anus</em></div></div>
+    </div>
+  </details>
+</div>
+
+<script>
+// ── Character & phrase data ───────────────────────────────────────────────────
+
+const CHARS = [
+  {
+    id: 'caesar', era: 'ancient',
+    name: 'Julius Caesar', short: 'Caesar',
+    dates: '100–44 BCE', tagline: 'Dictator of Rome',
+    wiki: 'Julius_Caesar',
+    color: '#8b1a1a', faint: '#fdf0f0',
+    skin: '#c8956c', hair: '#5a2800', robe: '#8b1a1a',
+    voice: { pitch: 0.82, rate: 0.85 },
+    decor: `
+      <path d="M 32 56 Q 80 28 128 56" stroke="#c8a400" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M 36 48 Q 80 20 124 48" stroke="#c8a400" fill="none" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+      <circle cx="32" cy="56" r="4" fill="#c8a400" opacity=".7"/>
+      <circle cx="128" cy="56" r="4" fill="#c8a400" opacity=".7"/>`,
+    items: [
+      { latin: 'Salve!', phonetic: 'SAHL-way!', english: 'Hello!',
+        note: 'V = W — always. The standard Roman greeting. For a group: Salvete!', type: 'word', wikt: 'salve' },
+      { latin: 'Alea iacta est.', phonetic: 'AH-lay-ah YAHK-tah est.', english: 'The die is cast.',
+        note: 'AE = "eye." I before a vowel = Y. Caesar said this crossing the Rubicon — a point of no return.', type: 'phrase' },
+      { latin: 'Veni, vidi, vici.', phonetic: 'WAY-nee, WEE-dee, WEE-kee.', english: 'I came, I saw, I conquered.',
+        note: 'Three perfect-tense verbs. V = W every single time. Caesar sent this as a one-line dispatch to Rome after a three-hour battle.', type: 'phrase' },
+    ]
+  },
+  {
+    id: 'cicero', era: 'ancient',
+    name: 'Marcus Tullius Cicero', short: 'Cicero',
+    dates: '106–43 BCE', tagline: "Rome's Greatest Orator",
+    wiki: 'Cicero',
+    color: '#1a4a8b', faint: '#eef2fb',
+    skin: '#c8956c', hair: '#4a2800', robe: '#1a4a8b',
+    voice: { pitch: 1.1, rate: 1.0 },
+    decor: `
+      <rect x="110" y="108" width="22" height="30" rx="3" fill="#d4af37" opacity=".7"/>
+      <path d="M 112 116 L 130 116 M 112 121 L 130 121 M 112 126 L 126 126" stroke="#8b6914" stroke-width="1.2" fill="none"/>
+      <ellipse cx="121" cy="108" rx="6" ry="4" fill="#c8a200" opacity=".8"/>
+      <ellipse cx="121" cy="138" rx="6" ry="4" fill="#c8a200" opacity=".8"/>`,
+    items: [
+      { latin: 'Vale!', phonetic: 'WAH-lay!', english: 'Farewell! Be strong!',
+        note: 'V = W. Romans wished each other strength on parting. Cicero ended every letter with it — his last letter ends "vale."', type: 'word', wikt: 'vale' },
+      { latin: 'Dum spiro, spero.', phonetic: 'doom SPEE-roh, SPAY-roh.', english: 'While I breathe, I hope.',
+        note: 'Hear the near-rhyme: spiro / spero. Cicero crafted sound as carefully as meaning. A phrase of resilience, written in exile.', type: 'phrase' },
+      { latin: 'Quo usque tandem, Catilina?', phonetic: 'kwoh OOS-kway TAN-dem, kah-tee-LEE-nah?', english: 'How long, Catiline?',
+        note: 'QU = KW. Cicero spoke these words directly to a traitor sitting in the Senate. History\'s most electrifying opening line.', type: 'phrase' },
+    ]
+  },
+  {
+    id: 'nuntii', era: 'modern',
+    name: 'Nuntii Latini', short: 'Nuntii Latini',
+    dates: '1989–2019', tagline: 'Finnish Latin Radio News',
+    wiki: 'Nuntii_Latini',
+    color: '#1a6b4a', faint: '#edf7f3',
+    skin: '#f0c898', hair: '#3a2800', robe: '#2a2a2a',
+    voice: { pitch: 1.05, rate: 1.05 },
+    decor: `
+      <path d="M 36 84 Q 36 38 80 38 Q 124 38 124 84" stroke="#1a6b4a" fill="none" stroke-width="4" stroke-linecap="round"/>
+      <rect x="26" y="80" width="18" height="24" rx="9" fill="#1a6b4a" opacity=".85"/>
+      <rect x="116" y="80" width="18" height="24" rx="9" fill="#1a6b4a" opacity=".85"/>
+      <circle cx="80" cy="148" r="6" fill="#1a6b4a" opacity=".6"/>
+      <rect x="78" y="148" width="4" height="12" fill="#1a6b4a" opacity=".6"/>`,
+    items: [
+      { latin: 'Interrete', phonetic: 'in-ter-RAY-tay', english: 'The Internet',
+        note: 'A real modern Latin coinage — "net between things." Latin keeps evolving. The Vatican coined "telephonium" for telephone.', type: 'word' },
+      { latin: 'Quid novi?', phonetic: 'kwid NOH-wee?', english: "What's new?",
+        note: 'Romans used this phrase 2,000 years ago. Nuntii Latini opened broadcasts with it every week. Ancient small talk, modern broadcast.', type: 'phrase' },
+      { latin: 'Haec sunt Nuntii Latini.', phonetic: 'hike sunt NOON-tee-ee lah-TEE-nee.', english: 'This is the Latin News.',
+        note: 'Real words from a real broadcast. Finnish public radio ran weekly Latin news from 1989 to 2019 — 30 years of journalism in Latin.', type: 'phrase' },
+    ]
+  },
+  {
+    id: 'vatican', era: 'modern',
+    name: 'The Vatican', short: 'The Vatican',
+    dates: '27 BCE – present', tagline: 'Latin as Official Language',
+    wiki: 'Pope_Francis',
+    color: '#7a5010', faint: '#faf4e8',
+    skin: '#e8c08a', hair: '#2a1800', robe: '#f8f8f0',
+    voice: { pitch: 0.88, rate: 0.80 },
+    decor: `
+      <rect x="74" y="14" width="12" height="38" rx="3" fill="#c8a200"/>
+      <rect x="59" y="24" width="42" height="12" rx="3" fill="#c8a200"/>`,
+    items: [
+      { latin: 'Pax', phonetic: 'pahks', english: 'Peace',
+        note: 'One syllable. One of Latin\'s greatest gifts to the world. Said at every Catholic Mass, every day, in every country on earth.', type: 'word', wikt: 'pax' },
+      { latin: 'Urbi et Orbi.', phonetic: 'OOR-bee et OR-bee.', english: 'To the City and to the World.',
+        note: 'The Pope\'s Easter and Christmas blessing formula — spoken from St. Peter\'s balcony in Latin to billions. Ancient words, global reach.', type: 'phrase' },
+      { latin: 'Introibo ad altare Dei.', phonetic: 'in-TROH-ee-boh ahd ahl-TAH-ray DAY-ee.', english: 'I will go up to the altar of God.',
+        note: 'Opening words of the traditional Latin Mass — spoken in Catholic churches worldwide for four centuries, and still today.', type: 'phrase' },
+    ]
+  },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeChar = 0;
+let activeItem = 0;
+let isRecording = false;
+let mediaRecorder = null;
+let recordedChunks = [];
+let audioURL = null;
+let micStream = null;
+let mouthTimer = null;
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const ancientRow  = document.getElementById('ancientRow');
+const modernRow   = document.getElementById('modernRow');
+const avatarWrap  = document.getElementById('avatarWrap');
+const charName    = document.getElementById('charName');
+const charSub     = document.getElementById('charSub');
+const itemDots    = document.getElementById('itemDots');
+const prevBtn     = document.getElementById('prevBtn');
+const nextBtn     = document.getElementById('nextBtn');
+const itemType    = document.getElementById('itemType');
+const latinDisp   = document.getElementById('latinDisp');
+const englishDisp = document.getElementById('englishDisp');
+const phoneticDisp= document.getElementById('phoneticDisp');
+const noteDisp    = document.getElementById('noteDisp');
+const statusMsg   = document.getElementById('statusMsg');
+const hearBtn     = document.getElementById('hearBtn');
+const recordBtn   = document.getElementById('recordBtn');
+const playBtn     = document.getElementById('playBtn');
+
+// ── Avatar SVG builder ────────────────────────────────────────────────────────
+function buildAvatar(ch) {
+  return `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="80" cy="80" r="80" fill="${ch.faint}"/>
+    <ellipse cx="80" cy="174" rx="64" ry="38" fill="${ch.robe}"/>
+    <ellipse cx="80" cy="160" rx="50" ry="28" fill="${ch.robe}"/>
+    <rect x="71" y="118" width="18" height="18" rx="7" fill="${ch.skin}"/>
+    <ellipse cx="80" cy="80" rx="37" ry="42" fill="${ch.skin}"/>
+    <ellipse cx="80" cy="43" rx="37" ry="21" fill="${ch.hair}"/>
+    <ellipse cx="44" cy="82" rx="7" ry="9" fill="${ch.skin}"/>
+    <ellipse cx="116" cy="82" rx="7" ry="9" fill="${ch.skin}"/>
+    <ellipse cx="65" cy="77" rx="7.5" ry="8.5" fill="white"/>
+    <ellipse cx="95" cy="77" rx="7.5" ry="8.5" fill="white"/>
+    <circle cx="66" cy="78" r="4.5" fill="#1a0a00"/>
+    <circle cx="96" cy="78" r="4.5" fill="#1a0a00"/>
+    <circle cx="68" cy="76" r="1.5" fill="white"/>
+    <circle cx="98" cy="76" r="1.5" fill="white"/>
+    <path d="M 56 65 Q 65 59 73 63" stroke="${ch.hair}" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 87 63 Q 95 59 104 65" stroke="${ch.hair}" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="80" cy="95" rx="5" ry="5.5" fill="${ch.skin}" stroke="#b07040" stroke-width=".5" opacity=".6"/>
+    <path id="avatarMouth" d="M 66 108 Q 80 116 94 108"
+          stroke="#7a2a0a" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+    ${ch.decor}
+  </svg>`;
+}
+
+function buildMiniAvatar(ch) {
+  return `<svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="22" r="22" fill="${ch.faint}"/>
+    <circle cx="22" cy="22" r="16" fill="${ch.color}" opacity=".18"/>
+    <text x="22" y="28" text-anchor="middle" font-size="15"
+          fill="${ch.color}" font-family="-apple-system,sans-serif" font-weight="700">
+      ${ch.short[0]}
+    </text>
+  </svg>`;
+}
+
+// ── Mouth animation ───────────────────────────────────────────────────────────
+const M_CLOSED = "M 66 108 Q 80 116 94 108";
+const M_OPEN   = "M 66 105 Q 80 122 94 105";
+
+function startMouth() {
+  const m = document.getElementById('avatarMouth');
+  if (!m) return;
+  let open = false;
+  mouthTimer = setInterval(() => {
+    open = !open;
+    m.setAttribute('d', open ? M_OPEN : M_CLOSED);
+    m.setAttribute('fill', open ? '#2a0800' : 'none');
+  }, 140);
+}
+
+function stopMouth() {
+  clearInterval(mouthTimer);
+  mouthTimer = null;
+  const m = document.getElementById('avatarMouth');
+  if (m) { m.setAttribute('d', M_CLOSED); m.setAttribute('fill', 'none'); }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function setCharCSS(ch) {
+  document.documentElement.style.setProperty('--cc', ch.color);
+  document.documentElement.style.setProperty('--cc-faint', ch.faint);
+}
+
+function renderCards() {
+  ancientRow.innerHTML = '';
+  modernRow.innerHTML = '';
+  CHARS.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'char-card' + (i === activeChar ? ' active' : '');
+    btn.innerHTML = `
+      <div class="card-avatar">${buildMiniAvatar(ch)}</div>
+      <div class="card-name">${ch.short}</div>
+      <div class="card-dates">${ch.dates}</div>`;
+    btn.onclick = () => selectChar(i);
+    (ch.era === 'ancient' ? ancientRow : modernRow).appendChild(btn);
+  });
+}
+
+function renderAvatar() {
+  const ch = CHARS[activeChar];
+  const imgSrc = imgCache[ch.id];
+  if (imgSrc) {
+    avatarWrap.innerHTML = `<img src="${imgSrc}" alt="${ch.name}">`;
+  } else {
+    avatarWrap.innerHTML = buildAvatar(ch);
+  }
+  charName.textContent = ch.name;
+  charSub.textContent = `${ch.dates} · ${ch.tagline}`;
+}
+
+function renderItem() {
+  const ch = CHARS[activeChar];
+  const it = ch.items[activeItem];
+  itemDots.innerHTML = ch.items.map((_, i) =>
+    `<div class="dot${i === activeItem ? ' on' : ''}"></div>`).join('');
+  prevBtn.disabled = activeItem === 0;
+  nextBtn.disabled = activeItem === ch.items.length - 1;
+  itemType.textContent = it.type === 'word' ? 'Vocabulary' : 'Phrase';
+  latinDisp.textContent = it.latin;
+  englishDisp.textContent = it.english;
+  phoneticDisp.textContent = it.phonetic;
+  noteDisp.textContent = it.note;
+  hearBtn.textContent = `\u{1F50A} Hear ${ch.short}`;
+  hearBtn.style.background = ch.color;
+  setStatus('');
+  resetRecorder();
+  renderInstrStatus();
+}
+
+function renderAll() {
+  const ch = CHARS[activeChar];
+  setCharCSS(ch);
+  renderCards();
+  renderAvatar();
+  renderItem();
+}
+
+// ── Selection ─────────────────────────────────────────────────────────────────
+function selectChar(i) {
+  window.speechSynthesis?.cancel();
+  stopMouth();
+  activeChar = i;
+  activeItem = 0;
+  renderAll();
+}
+
+prevBtn.onclick = () => { if (activeItem > 0) { activeItem--; renderItem(); } };
+nextBtn.onclick = () => {
+  if (activeItem < CHARS[activeChar].items.length - 1) { activeItem++; renderItem(); }
+};
+
+// ── TTS ───────────────────────────────────────────────────────────────────────
+
+// Pick the best available voice for Latin. Italian is phonetically closest —
+// vowels are almost identical, consonants mostly right. Fall back to Spanish,
+// then French, then whatever the browser offers.
+function pickVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  return (
+    voices.find(v => v.lang.startsWith('it') && v.localService) ||
+    voices.find(v => v.lang.startsWith('it')) ||
+    voices.find(v => v.lang.startsWith('es') && v.localService) ||
+    voices.find(v => v.lang.startsWith('es')) ||
+    voices.find(v => v.lang.startsWith('fr')) ||
+    null
+  );
+}
+
+// Voices load asynchronously — cache after first load
+let cachedVoice = null;
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { cachedVoice = pickVoice(); };
+}
+
+hearBtn.addEventListener('click', async () => {
+  const ch = CHARS[activeChar];
+  const it = ch.items[activeItem];
+
+  // Priority 1: instructor's recorded voice
+  const instrAudio = instrGet(ch.id, activeItem);
+  if (instrAudio) {
+    const a = new Audio(instrAudio);
+    hearBtn.disabled = true;
+    setStatus(`Playing ${ch.short}'s recorded voice…`);
+    startMouth();
+    a.play();
+    a.onended = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
+    return;
+  }
+
+  // Priority 2: Wiktionary human recording (single words only)
+  if (it.wikt) {
+    hearBtn.disabled = true;
+    setStatus('Loading audio…');
+    const wiktURL = await fetchWiktAudio(it.wikt);
+    if (wiktURL) {
+      const a = new Audio(wiktURL);
+      setStatus(`${ch.short} is speaking…`);
+      startMouth();
+      a.play();
+      a.onended = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
+      a.onerror = () => { stopMouth(); hearBtn.disabled = false; useTTS(); };
+      return;
+    }
+    hearBtn.disabled = false;
+    setStatus('');
+  }
+
+  // Priority 3: TTS fallback
+  useTTS();
+
+  function useTTS() {
+    if (!window.speechSynthesis) {
+      setStatus('Speech not supported — try Chrome or Edge.');
+      hearBtn.disabled = false;
+      return;
+    }
+    window.speechSynthesis.cancel();
+    stopMouth();
+    const voice = cachedVoice || pickVoice();
+    const u = new SpeechSynthesisUtterance(it.latin);
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    else { u.lang = 'it'; }
+    u.pitch = ch.voice.pitch;
+    u.rate  = ch.voice.rate;
+    u.onstart = () => { hearBtn.disabled = true; setStatus(`${ch.short} is speaking…`); startMouth(); };
+    u.onend   = () => { hearBtn.disabled = false; stopMouth(); setStatus('Your turn — record yourself.'); };
+    u.onerror = () => { stopMouth(); hearBtn.disabled = false; setStatus(''); };
+    window.speechSynthesis.speak(u);
+  }
+});
+
+// ── Recording ─────────────────────────────────────────────────────────────────
+recordBtn.addEventListener('click', async () => {
+  if (isRecording) { stopRecording(); return; }
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    startRecording();
+  } catch {
+    setStatus('Microphone access denied — check browser permissions.');
+  }
+});
+
+function startRecording() {
+  recordedChunks = [];
+  if (audioURL) { URL.revokeObjectURL(audioURL); audioURL = null; }
+  playBtn.disabled = true;
+  mediaRecorder = new MediaRecorder(micStream);
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+    audioURL = URL.createObjectURL(blob);
+    playBtn.disabled = false;
+    setStatus('Recorded! Play it back and compare.');
+    micStream.getTracks().forEach(t => t.stop());
+  };
+  mediaRecorder.start();
+  isRecording = true;
+  recordBtn.textContent = '\u23F9 Stop recording';
+  recordBtn.classList.add('recording');
+  setStatus('Recording… speak clearly.');
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+    recordBtn.textContent = '\u{1F3A7} Record again';
+    recordBtn.classList.remove('recording');
+  }
+}
+
+playBtn.addEventListener('click', () => {
+  if (!audioURL) return;
+  const a = new Audio(audioURL);
+  a.play();
+  setStatus('Playing your recording…');
+  a.onended = () => setStatus('How did it sound? Try again to improve!');
+});
+
+function resetRecorder() {
+  if (isRecording) stopRecording();
+  recordedChunks = [];
+  if (audioURL) { URL.revokeObjectURL(audioURL); audioURL = null; }
+  playBtn.disabled = true;
+  recordBtn.textContent = '\u{1F3A7} Record yourself';
+  recordBtn.classList.remove('recording');
+}
+
+function setStatus(msg) { statusMsg.textContent = msg; }
+
+// ── Wiktionary audio fetching ─────────────────────────────────────────────────
+// For single vocabulary words, look up human-recorded Latin audio on Wiktionary.
+// Priority: instructor recording → Wiktionary human audio → TTS fallback.
+
+const wiktCache = {}; // word → audio URL or null
+
+async function fetchWiktAudio(word) {
+  if (word in wiktCache) return wiktCache[word];
+  try {
+    // Step 1: get Wiktionary page wikitext to find the audio filename
+    const wtRes = await fetch(
+      `https://en.wiktionary.org/w/api.php?action=parse&page=${encodeURIComponent(word)}&prop=wikitext&format=json&origin=*`
+    );
+    const wtData = await wtRes.json();
+    const wikitext = wtData.parse?.wikitext?.['*'] || '';
+
+    // Latin audio entries look like: {{audio|la|La-word.ogg|Audio}}
+    const match = wikitext.match(/\{\{audio\|la\|([^|}]+\.ogg)/i);
+    if (!match) { wiktCache[word] = null; return null; }
+
+    const filename = match[1].trim();
+
+    // Step 2: resolve filename to a direct URL via Wikimedia Commons API
+    const comRes = await fetch(
+      `https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(filename)}&prop=imageinfo&iiprop=url&format=json&origin=*`
+    );
+    const comData = await comRes.json();
+    const pages = Object.values(comData.query?.pages || {});
+    const url = pages[0]?.imageinfo?.[0]?.url || null;
+    wiktCache[word] = url;
+    return url;
+  } catch {
+    wiktCache[word] = null;
+    return null;
+  }
+}
+
+async function preloadWiktAudio() {
+  for (const ch of CHARS) {
+    for (const it of ch.items) {
+      if (it.wikt) fetchWiktAudio(it.wikt); // fire-and-forget; populates cache
+    }
+  }
+}
+
+// ── Wikipedia image fetching ──────────────────────────────────────────────────
+const imgCache = {};
+
+async function fetchWikiImages() {
+  for (const ch of CHARS) {
+    if (!ch.wiki) continue;
+    try {
+      const res = await fetch(
+        'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(ch.wiki)
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.thumbnail?.source) imgCache[ch.id] = data.thumbnail.source;
+    } catch { /* offline — SVG fallback stays */ }
+  }
+  renderAvatar(); // swap in real photos once loaded
+}
+
+// ── Instructor mode ───────────────────────────────────────────────────────────
+const instrToggle   = document.getElementById('instrToggle');
+const instrRecBtn   = document.getElementById('instrRecBtn');
+const instrPreviewBtn = document.getElementById('instrPreviewBtn');
+const instrClearBtn = document.getElementById('instrClearBtn');
+const instrStatus   = document.getElementById('instrStatus');
+
+let instrRecording = false;
+let instrRecorder  = null;
+let instrChunks    = [];
+let instrStream    = null;
+
+function instrKey(charId, idx) { return `latin-instr-${charId}-${idx}`; }
+function instrGet(charId, idx) { return localStorage.getItem(instrKey(charId, idx)); }
+
+function renderInstrStatus() {
+  const ch = CHARS[activeChar];
+  const has = !!instrGet(ch.id, activeItem);
+  instrStatus.textContent = has
+    ? `Recording saved — students will hear your voice for "${ch.items[activeItem].latin}"`
+    : `No recording yet. Record your voice for students.`;
+  instrStatus.parentElement.classList.toggle('instr-has-rec', has);
+  instrPreviewBtn.disabled = !has;
+  instrClearBtn.disabled = !has;
+}
+
+instrToggle.addEventListener('click', () => {
+  document.body.classList.toggle('instructor-mode');
+  instrToggle.classList.toggle('on');
+  instrToggle.textContent = document.body.classList.contains('instructor-mode')
+    ? 'Exit Instructor Mode' : 'Instructor Mode';
+  renderInstrStatus();
+});
+
+instrRecBtn.addEventListener('click', async () => {
+  if (instrRecording) {
+    instrRecorder.stop();
+    instrRecording = false;
+    instrRecBtn.textContent = '\u{1F3A7} Record for students';
+    instrRecBtn.classList.remove('recording');
+    return;
+  }
+  try {
+    instrStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch {
+    instrStatus.textContent = 'Microphone access denied.';
+    return;
+  }
+  instrChunks = [];
+  instrRecorder = new MediaRecorder(instrStream);
+  instrRecorder.ondataavailable = e => { if (e.data.size > 0) instrChunks.push(e.data); };
+  instrRecorder.onstop = () => {
+    instrStream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(instrChunks, { type: 'audio/webm' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const ch = CHARS[activeChar];
+      localStorage.setItem(instrKey(ch.id, activeItem), reader.result);
+      renderInstrStatus();
+    };
+    reader.readAsDataURL(blob);
+  };
+  instrRecorder.start();
+  instrRecording = true;
+  instrRecBtn.textContent = '\u23F9 Stop recording';
+  instrRecBtn.classList.add('recording');
+  instrStatus.textContent = 'Recording… speak clearly, then press Stop.';
+});
+
+instrPreviewBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  const dataURL = instrGet(ch.id, activeItem);
+  if (!dataURL) return;
+  const a = new Audio(dataURL);
+  a.play();
+  instrStatus.textContent = 'Playing preview…';
+  a.onended = () => renderInstrStatus();
+});
+
+instrClearBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  localStorage.removeItem(instrKey(ch.id, activeItem));
+  renderInstrStatus();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderAll();
+fetchWikiImages();
+preloadWiktAudio(); // start fetching in background; ready by the time user clicks
+</script>
+</body>
+</html>
