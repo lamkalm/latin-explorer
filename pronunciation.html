@@ -120,6 +120,118 @@
 
     .note-disp { font-size: .83em; color: #6e6e73; line-height: 1.55; margin-bottom: 18px; }
 
+    .flashcard-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid #e5e5ea;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #f6f7f9 0%, #eceff4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6e6e73;
+      font-size: .82em;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .flashcard-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .translation-box {
+      background: #f5f5f7;
+      border: 1.5px solid #e5e5ea;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .translation-label {
+      font-size: .67em;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #6e6e73;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .translation-question {
+      font-size: .9em;
+      color: #1d1d1f;
+      line-height: 1.5;
+    }
+
+    .student-answer-box {
+      margin-bottom: 14px;
+      padding: 12px;
+      border: 1.5px solid #e5e5ea;
+      border-radius: 10px;
+      background: #fcfcfd;
+    }
+
+    .student-answer-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d1d6;
+      font-size: .92em;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+
+    .student-answer-input:focus {
+      outline: 2px solid rgba(26, 74, 139, .18);
+      border-color: #1a4a8b;
+    }
+
+    .answer-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .answer-btn {
+      border: 1px solid #d1d1d6;
+      background: white;
+      color: #1d1d1f;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: .85em;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover {
+      background: #f5f5f7;
+    }
+
+    .answer-feedback {
+      min-height: 18px;
+      margin-top: 10px;
+      font-size: .82em;
+      line-height: 1.5;
+      color: #6e6e73;
+    }
+
+    .answer-feedback.ok {
+      color: #176b3a;
+    }
+
+    .answer-feedback.warn {
+      color: #8a5a00;
+    }
+
+    .answer-feedback.bad {
+      color: #b22222;
+    }
+
     .status-msg { min-height: 20px; font-size: .8em; color: #aaa; margin-bottom: 10px; }
 
     /* ── Controls ── */
@@ -196,6 +308,23 @@
     }
     .instr-has-rec .instr-status { color: #1a8b4a; }
 
+    .instr-prompt-box {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #cfd8ef;
+    }
+
+    .instr-prompt-input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #c0cce8;
+      font-size: .86em;
+      margin-bottom: 8px;
+      font-family: inherit;
+      background: white;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 560px) {
       .stage { grid-template-columns: 1fr; gap: 20px; }
@@ -249,6 +378,7 @@
       <button class="nav-btn" id="nextBtn">&#8594;</button>
     </div>
     <div class="item-type" id="itemType"></div>
+    <div class="flashcard-image" id="flashcardImage">Image loading...</div>
     <div class="latin-disp" id="latinDisp"></div>
     <div class="english-disp" id="englishDisp"></div>
     <div class="phonetic-box">
@@ -256,6 +386,25 @@
       <div class="phonetic-text" id="phoneticDisp"></div>
     </div>
     <div class="note-disp" id="noteDisp"></div>
+    <div class="translation-box">
+      <div class="translation-label">Teacher Translation Prompt</div>
+      <div class="translation-question" id="translationQuestion"></div>
+    </div>
+    <div class="student-answer-box">
+      <div class="translation-label">Your Translation</div>
+      <input
+        id="studentAnswerInput"
+        class="student-answer-input"
+        type="text"
+        placeholder="Type your translation here"
+        aria-label="Your translation"
+      />
+      <div class="answer-actions">
+        <button class="answer-btn" id="checkAnswerBtn" type="button">Check answer</button>
+        <button class="answer-btn" id="showAnswerBtn" type="button">Show expected answer</button>
+      </div>
+      <div class="answer-feedback" id="answerFeedback"></div>
+    </div>
     <div class="status-msg" id="statusMsg"></div>
     <div class="controls">
       <div class="btn-row">
@@ -273,6 +422,20 @@
           <button class="btn btn-secondary" id="instrRecBtn">&#127897; Record for students</button>
           <button class="btn btn-secondary" id="instrPreviewBtn" disabled>&#9654; Preview</button>
           <button class="btn btn-secondary" id="instrClearBtn" disabled style="flex:0;padding:12px 14px;">&#128465;</button>
+        </div>
+        <div class="instr-prompt-box">
+          <div class="instr-label">Teacher Translation Prompt</div>
+          <input
+            id="instrPromptInput"
+            class="instr-prompt-input"
+            type="text"
+            placeholder="Example: Translate this into English."
+            aria-label="Teacher translation prompt"
+          />
+          <div class="btn-row">
+            <button class="btn btn-secondary" id="instrPromptSaveBtn">Save prompt</button>
+            <button class="btn btn-secondary" id="instrPromptClearBtn">Clear prompt</button>
+          </div>
         </div>
       </div>
     </div>
@@ -318,9 +481,9 @@ const CHARS = [
       { latin: 'Salve!', phonetic: 'SAHL-way!', english: 'Hello!',
         note: 'V = W — always. The standard Roman greeting. For a group: Salvete!', type: 'word', wikt: 'salve' },
       { latin: 'Alea iacta est.', phonetic: 'AH-lay-ah YAHK-tah est.', english: 'The die is cast.',
-        note: 'AE = "eye." I before a vowel = Y. Caesar said this crossing the Rubicon — a point of no return.', type: 'phrase' },
+        note: 'AE = "eye." I before a vowel = Y. Caesar said this crossing the Rubicon — a point of no return.', type: 'phrase', imageWiki: 'Rubicon' },
       { latin: 'Veni, vidi, vici.', phonetic: 'WAY-nee, WEE-dee, WEE-kee.', english: 'I came, I saw, I conquered.',
-        note: 'Three perfect-tense verbs. V = W every single time. Caesar sent this as a one-line dispatch to Rome after a three-hour battle.', type: 'phrase' },
+        note: 'Three perfect-tense verbs. V = W every single time. Caesar sent this as a one-line dispatch to Rome after a three-hour battle.', type: 'phrase', imageWiki: 'Julius_Caesar' },
     ]
   },
   {
@@ -340,9 +503,9 @@ const CHARS = [
       { latin: 'Vale!', phonetic: 'WAH-lay!', english: 'Farewell! Be strong!',
         note: 'V = W. Romans wished each other strength on parting. Cicero ended every letter with it — his last letter ends "vale."', type: 'word', wikt: 'vale' },
       { latin: 'Dum spiro, spero.', phonetic: 'doom SPEE-roh, SPAY-roh.', english: 'While I breathe, I hope.',
-        note: 'Hear the near-rhyme: spiro / spero. Cicero crafted sound as carefully as meaning. A phrase of resilience, written in exile.', type: 'phrase' },
+        note: 'Hear the near-rhyme: spiro / spero. Cicero crafted sound as carefully as meaning. A phrase of resilience, written in exile.', type: 'phrase', imageWiki: 'Cicero' },
       { latin: 'Quo usque tandem, Catilina?', phonetic: 'kwoh OOS-kway TAN-dem, kah-tee-LEE-nah?', english: 'How long, Catiline?',
-        note: 'QU = KW. Cicero spoke these words directly to a traitor sitting in the Senate. History\'s most electrifying opening line.', type: 'phrase' },
+        note: 'QU = KW. Cicero spoke these words directly to a traitor sitting in the Senate. History\'s most electrifying opening line.', type: 'phrase', imageWiki: 'Catiline_Orations' },
     ]
   },
   {
@@ -361,11 +524,11 @@ const CHARS = [
       <rect x="78" y="148" width="4" height="12" fill="#1a6b4a" opacity=".6"/>`,
     items: [
       { latin: 'Interrete', phonetic: 'in-ter-RAY-tay', english: 'The Internet',
-        note: 'A real modern Latin coinage — "net between things." Latin keeps evolving. The Vatican coined "telephonium" for telephone.', type: 'word' },
+        note: 'A real modern Latin coinage — "net between things." Latin keeps evolving. The Vatican coined "telephonium" for telephone.', type: 'word', imageWiki: 'Internet' },
       { latin: 'Quid novi?', phonetic: 'kwid NOH-wee?', english: "What's new?",
-        note: 'Romans used this phrase 2,000 years ago. Nuntii Latini opened broadcasts with it every week. Ancient small talk, modern broadcast.', type: 'phrase' },
+        note: 'Romans used this phrase 2,000 years ago. Nuntii Latini opened broadcasts with it every week. Ancient small talk, modern broadcast.', type: 'phrase', imageWiki: 'Nuntii_Latini' },
       { latin: 'Haec sunt Nuntii Latini.', phonetic: 'hike sunt NOON-tee-ee lah-TEE-nee.', english: 'This is the Latin News.',
-        note: 'Real words from a real broadcast. Finnish public radio ran weekly Latin news from 1989 to 2019 — 30 years of journalism in Latin.', type: 'phrase' },
+        note: 'Real words from a real broadcast. Finnish public radio ran weekly Latin news from 1989 to 2019 — 30 years of journalism in Latin.', type: 'phrase', imageWiki: 'Yle' },
     ]
   },
   {
@@ -383,9 +546,9 @@ const CHARS = [
       { latin: 'Pax', phonetic: 'pahks', english: 'Peace',
         note: 'One syllable. One of Latin\'s greatest gifts to the world. Said at every Catholic Mass, every day, in every country on earth.', type: 'word', wikt: 'pax' },
       { latin: 'Urbi et Orbi.', phonetic: 'OOR-bee et OR-bee.', english: 'To the City and to the World.',
-        note: 'The Pope\'s Easter and Christmas blessing formula — spoken from St. Peter\'s balcony in Latin to billions. Ancient words, global reach.', type: 'phrase' },
+        note: 'The Pope\'s Easter and Christmas blessing formula — spoken from St. Peter\'s balcony in Latin to billions. Ancient words, global reach.', type: 'phrase', imageWiki: 'Urbi_et_Orbi' },
       { latin: 'Introibo ad altare Dei.', phonetic: 'in-TROH-ee-boh ahd ahl-TAH-ray DAY-ee.', english: 'I will go up to the altar of God.',
-        note: 'Opening words of the traditional Latin Mass — spoken in Catholic churches worldwide for four centuries, and still today.', type: 'phrase' },
+        note: 'Opening words of the traditional Latin Mass — spoken in Catholic churches worldwide for four centuries, and still today.', type: 'phrase', imageWiki: 'Mass_in_the_Catholic_Church' },
     ]
   },
 ];
@@ -410,10 +573,16 @@ const itemDots    = document.getElementById('itemDots');
 const prevBtn     = document.getElementById('prevBtn');
 const nextBtn     = document.getElementById('nextBtn');
 const itemType    = document.getElementById('itemType');
+const flashcardImage = document.getElementById('flashcardImage');
 const latinDisp   = document.getElementById('latinDisp');
 const englishDisp = document.getElementById('englishDisp');
 const phoneticDisp= document.getElementById('phoneticDisp');
 const noteDisp    = document.getElementById('noteDisp');
+const translationQuestion = document.getElementById('translationQuestion');
+const studentAnswerInput = document.getElementById('studentAnswerInput');
+const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+const showAnswerBtn = document.getElementById('showAnswerBtn');
+const answerFeedback = document.getElementById('answerFeedback');
 const statusMsg   = document.getElementById('statusMsg');
 const hearBtn     = document.getElementById('hearBtn');
 const recordBtn   = document.getElementById('recordBtn');
@@ -519,15 +688,145 @@ function renderItem() {
   prevBtn.disabled = activeItem === 0;
   nextBtn.disabled = activeItem === ch.items.length - 1;
   itemType.textContent = it.type === 'word' ? 'Vocabulary' : 'Phrase';
+  renderFlashcardImage(ch, it);
   latinDisp.textContent = it.latin;
   englishDisp.textContent = it.english;
   phoneticDisp.textContent = it.phonetic;
   noteDisp.textContent = it.note;
+  renderTranslationPrompt();
+  renderStudentAnswerState();
   hearBtn.textContent = `\u{1F50A} Hear ${ch.short}`;
   hearBtn.style.background = ch.color;
   setStatus('');
   resetRecorder();
   renderInstrStatus();
+}
+
+function renderFlashcardImage(ch, it) {
+  const title = it.imageWiki || ch.wiki;
+  if (!title) {
+    flashcardImage.textContent = 'No image available for this card yet.';
+    return;
+  }
+
+  const cached = cardImgCache[title];
+  if (cached) {
+    flashcardImage.innerHTML = `<img src="${cached}" alt="Image for ${it.latin}">`;
+    return;
+  }
+
+  flashcardImage.textContent = 'Image loading...';
+  fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title))
+    .then(r => r.json())
+    .then(data => {
+      const src = data.thumbnail?.source;
+      if (!src) {
+        flashcardImage.textContent = 'No image found for this card.';
+        return;
+      }
+      cardImgCache[title] = src;
+      // Avoid race conditions if user quickly changes cards.
+      const current = CHARS[activeChar].items[activeItem];
+      const currentTitle = current.imageWiki || CHARS[activeChar].wiki;
+      if (currentTitle === title) {
+        flashcardImage.innerHTML = `<img src="${src}" alt="Image for ${current.latin}">`;
+      }
+    })
+    .catch(() => {
+      flashcardImage.textContent = 'Unable to load image right now.';
+    });
+}
+
+function defaultPrompt(it) {
+  return `Translate this into English: ${it.latin}`;
+}
+
+function promptKey(charId, idx) { return `latin-prompt-${charId}-${idx}`; }
+function promptGet(charId, idx) { return localStorage.getItem(promptKey(charId, idx)); }
+
+function renderTranslationPrompt() {
+  const ch = CHARS[activeChar];
+  const it = ch.items[activeItem];
+  translationQuestion.textContent = promptGet(ch.id, activeItem) || defaultPrompt(it);
+}
+
+function answerKey(charId, idx) { return `latin-answer-${charId}-${idx}`; }
+
+function getStudentAnswer(charId, idx) {
+  return localStorage.getItem(answerKey(charId, idx)) || '';
+}
+
+function setStudentAnswer(charId, idx, value) {
+  localStorage.setItem(answerKey(charId, idx), value);
+}
+
+function normalizeAnswer(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function keywordTokens(text) {
+  const stopWords = new Set(['a', 'an', 'the', 'to', 'of', 'and', 'or', 'be', 'is', 'are', 'am', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'this', 'that', 'these', 'those', 'my', 'your', 'our', 'their']);
+  return normalizeAnswer(text)
+    .split(' ')
+    .filter(token => token && !stopWords.has(token));
+}
+
+function uniqueTokens(tokens) {
+  return [...new Set(tokens)];
+}
+
+function similarityScore(a, b) {
+  if (!a.length && !b.length) return 1;
+  const aTokens = uniqueTokens(keywordTokens(a));
+  const bTokens = uniqueTokens(keywordTokens(b));
+  if (!aTokens.length || !bTokens.length) return 0;
+  const matches = aTokens.filter(token => bTokens.includes(token)).length;
+  return matches / Math.max(aTokens.length, bTokens.length);
+}
+
+function evaluateAnswer(student, expected) {
+  const normalizedStudent = normalizeAnswer(student);
+  const normalizedExpected = normalizeAnswer(expected);
+  const expectedTokens = uniqueTokens(keywordTokens(expected));
+  const studentTokens = uniqueTokens(keywordTokens(student));
+
+  if (!normalizedStudent) {
+    return { level: 'bad', message: 'Type a translation before checking.' };
+  }
+
+  if (normalizedStudent === normalizedExpected) {
+    return { level: 'ok', message: 'Correct. This matches the expected translation.' };
+  }
+
+  const missing = expectedTokens.filter(token => !studentTokens.includes(token));
+  const extra = studentTokens.filter(token => !expectedTokens.includes(token));
+  const score = similarityScore(student, expected);
+
+  if (score >= 0.75 && missing.length <= 1) {
+    const missingText = missing.length ? ` Missing key word: ${missing.join(', ')}.` : '';
+    return { level: 'warn', message: `Close. Your meaning is mostly right, but revise it to better match the expected answer.${missingText}` };
+  }
+
+  const parts = ['Not quite.'];
+  if (missing.length) parts.push(`Missing key ideas: ${missing.join(', ')}.`);
+  if (extra.length) parts.push(`Check these extra words: ${extra.join(', ')}.`);
+  parts.push(`Expected answer: ${expected}`);
+  return { level: 'bad', message: parts.join(' ') };
+}
+
+function setAnswerFeedback(level, message) {
+  answerFeedback.className = `answer-feedback ${level}`;
+  answerFeedback.textContent = message;
+}
+
+function renderStudentAnswerState() {
+  const ch = CHARS[activeChar];
+  studentAnswerInput.value = getStudentAnswer(ch.id, activeItem);
+  setAnswerFeedback('', '');
 }
 
 function renderAll() {
@@ -693,6 +992,32 @@ function resetRecorder() {
 
 function setStatus(msg) { statusMsg.textContent = msg; }
 
+studentAnswerInput.addEventListener('input', () => {
+  const ch = CHARS[activeChar];
+  setStudentAnswer(ch.id, activeItem, studentAnswerInput.value);
+  if (answerFeedback.textContent) {
+    setAnswerFeedback('', '');
+  }
+});
+
+studentAnswerInput.addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    checkAnswerBtn.click();
+  }
+});
+
+checkAnswerBtn.addEventListener('click', () => {
+  const expected = CHARS[activeChar].items[activeItem].english;
+  const result = evaluateAnswer(studentAnswerInput.value, expected);
+  setAnswerFeedback(result.level, result.message);
+});
+
+showAnswerBtn.addEventListener('click', () => {
+  const expected = CHARS[activeChar].items[activeItem].english;
+  setAnswerFeedback('warn', `Expected answer: ${expected}`);
+});
+
 // ── Wiktionary audio fetching ─────────────────────────────────────────────────
 // For single vocabulary words, look up human-recorded Latin audio on Wiktionary.
 // Priority: instructor recording → Wiktionary human audio → TTS fallback.
@@ -740,6 +1065,7 @@ async function preloadWiktAudio() {
 
 // ── Wikipedia image fetching ──────────────────────────────────────────────────
 const imgCache = {};
+const cardImgCache = {};
 
 async function fetchWikiImages() {
   for (const ch of CHARS) {
@@ -762,6 +1088,9 @@ const instrRecBtn   = document.getElementById('instrRecBtn');
 const instrPreviewBtn = document.getElementById('instrPreviewBtn');
 const instrClearBtn = document.getElementById('instrClearBtn');
 const instrStatus   = document.getElementById('instrStatus');
+const instrPromptInput = document.getElementById('instrPromptInput');
+const instrPromptSaveBtn = document.getElementById('instrPromptSaveBtn');
+const instrPromptClearBtn = document.getElementById('instrPromptClearBtn');
 
 let instrRecording = false;
 let instrRecorder  = null;
@@ -774,12 +1103,17 @@ function instrGet(charId, idx) { return localStorage.getItem(instrKey(charId, id
 function renderInstrStatus() {
   const ch = CHARS[activeChar];
   const has = !!instrGet(ch.id, activeItem);
+  const hasPrompt = !!promptGet(ch.id, activeItem);
   instrStatus.textContent = has
     ? `Recording saved — students will hear your voice for "${ch.items[activeItem].latin}"`
     : `No recording yet. Record your voice for students.`;
+  if (hasPrompt) {
+    instrStatus.textContent += ' Translation prompt saved.';
+  }
   instrStatus.parentElement.classList.toggle('instr-has-rec', has);
   instrPreviewBtn.disabled = !has;
   instrClearBtn.disabled = !has;
+  instrPromptInput.value = promptGet(ch.id, activeItem) || '';
 }
 
 instrToggle.addEventListener('click', () => {
@@ -838,6 +1172,25 @@ instrPreviewBtn.addEventListener('click', () => {
 instrClearBtn.addEventListener('click', () => {
   const ch = CHARS[activeChar];
   localStorage.removeItem(instrKey(ch.id, activeItem));
+  renderInstrStatus();
+});
+
+instrPromptSaveBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  const value = instrPromptInput.value.trim();
+  if (!value) {
+    instrStatus.textContent = 'Type a translation question before saving.';
+    return;
+  }
+  localStorage.setItem(promptKey(ch.id, activeItem), value);
+  renderTranslationPrompt();
+  renderInstrStatus();
+});
+
+instrPromptClearBtn.addEventListener('click', () => {
+  const ch = CHARS[activeChar];
+  localStorage.removeItem(promptKey(ch.id, activeItem));
+  renderTranslationPrompt();
   renderInstrStatus();
 });
 
