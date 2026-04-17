@@ -137,6 +137,27 @@
 
 <main class="sketch-list">
 
+  <!-- ── Pronunciation Cards ── -->
+  <a href="pronunciation.html" class="sketch-row">
+    <div class="thumbnail" id="pronunciationThumb">
+      <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="160" height="100" fill="#eef3ea"/>
+        <rect x="16" y="14" width="128" height="72" rx="10" fill="#ffffff" stroke="#cfd8c8" stroke-width="2"/>
+        <rect x="26" y="24" width="38" height="42" rx="6" fill="#dbe7d3"/>
+        <circle cx="45" cy="40" r="10" fill="#94aa7b"/>
+        <path d="M33 60c5-8 20-8 25 0" fill="none" stroke="#7a8f63" stroke-width="3" stroke-linecap="round"/>
+        <rect x="74" y="28" width="54" height="8" rx="4" fill="#c6d4b7"/>
+        <rect x="74" y="42" width="44" height="6" rx="3" fill="#d9e4cf"/>
+        <rect x="74" y="54" width="34" height="6" rx="3" fill="#d9e4cf"/>
+        <path d="M120 67l11-7v14z" fill="#6d8b52"/>
+      </svg>
+    </div>
+    <div class="sketch-info">
+      <h2>Pronunciation Cards</h2>
+      <p>Practice spoken Latin with guided flashcards, historical images, teacher-written translation prompts, and answer checking for each phrase.</p>
+    </div>
+  </a>
+
   <!-- ── Vocabulary Roots ── -->
   <a href="roots.html" class="sketch-row">
     <div class="thumbnail" id="rootsThumb">
@@ -245,6 +266,7 @@ function loadWikiThumb(elementId, wikiTitle, alt, posY = 'center top') {
     .catch(() => {});
 }
 
+loadWikiThumb('pronunciationThumb', 'Julius_Caesar', 'Julius Caesar bust', 'center 20%');
 loadWikiThumb('speakThumb', 'Julius_Caesar',    'Julius Caesar bust');
 loadWikiThumb('convThumb',  'Cicero',            'Cicero bust');
 loadWikiThumb('rootsThumb', 'Latin',             'Latin inscription');

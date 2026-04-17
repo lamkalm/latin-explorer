@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vocabulary Roots — Latin Explorer</title>
   <style>
+            /* Force black text for latin-root and root-meaning in revealed 'albus, albi' tile */
+            .root-card.revealed[data-root="albus"] .latin-root,
+            .root-card.revealed[data-root="albus"] .root-meaning {
+              color: #000 !important;
+            }
+        /* Force black text for derivatives in revealed 'albus, albi' tile */
+        .root-card.revealed[data-root="albus"] .derivative {
+          color: #000 !important;
+          background: rgba(255,255,255,.7) !important;
+          border-color: rgba(0,0,0,0.1) !important;
+        }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -311,36 +322,17 @@ const ROOT_SETS = {
       { latin: 'viridis, viridis', meaning: 'green', derivatives: ['verdant', 'verdure', 'veridical', 'verdigris'] }
     ]
   },
-  weather: {
-    title: 'Weather',
-    note: 'Review weather roots from last week. Practice: match each root to modern weather vocabulary.',
+  numerals: {
+    title: 'Numerals',
+    note: 'Practice using Roman numerals (I, V, X, L, C, D, M) in Latin! Try writing a number or date.',
     roots: [
-      { latin: 'tempestas, tempestatis', meaning: 'storm, weather', derivatives: ['tempest', 'tempestuous', 'tempestive'] },
-      { latin: 'ventus, venti', meaning: 'wind', derivatives: ['ventilate', 'ventilation', 'venturous'] },
-      { latin: 'nubes, nubis', meaning: 'cloud', derivatives: ['nubilous', 'nubile', 'denude'] },
-      { latin: 'pluvia, pluviae', meaning: 'rain', derivatives: ['pluvial', 'pluviophile'] },
-      { latin: 'nimis', meaning: 'snow', derivatives: ['nimbus', 'nimbostratus'] },
-      { latin: 'frigus, frigoris', meaning: 'cold', derivatives: ['frigid', 'refrigerate', 'frigorific'] },
-      { latin: 'calor, caloris', meaning: 'heat', derivatives: ['caloric', 'calorie', 'calorific'] },
-      { latin: 'sol, solis', meaning: 'sun', derivatives: ['solar', 'solstice', 'solarium'] },
-      { latin: 'aqua, aquae', meaning: 'water', derivatives: ['aqueous', 'aquatic', 'aquifer'] },
-      { latin: 'umbra, umbrae', meaning: 'shade, shadow', derivatives: ['umbrella', 'penumbra', 'umbrage'] }
-    ]
-  },
-  emotions: {
-    title: 'Emotions',
-    note: 'Preview next week: explore Latin emotion roots and their English descendants.',
-    roots: [
-      { latin: 'amor, amoris', meaning: 'love', derivatives: ['amorous', 'enamor', 'paramour'] },
-      { latin: 'ira, irae', meaning: 'anger', derivatives: ['irate', 'ire', 'irascible'] },
-      { latin: 'timor, timoris', meaning: 'fear', derivatives: ['timid', 'timorous', 'intimidate'] },
-      { latin: 'gaudium, gaudii', meaning: 'joy', derivatives: ['gaudy', 'rejoice', 'joyous'] },
-      { latin: 'dolor, doloris', meaning: 'pain, sorrow', derivatives: ['dolor', 'dolorous', 'condolence'] },
-      { latin: 'spes, spei', meaning: 'hope', derivatives: ['despair', 'prosper', 'auspicious'] },
-      { latin: 'odium, odii', meaning: 'hatred', derivatives: ['odious', 'odium'] },
-      { latin: 'invidia, invidiae', meaning: 'envy', derivatives: ['envy', 'invidious'] },
-      { latin: 'pax, pacis', meaning: 'peace', derivatives: ['peace', 'pacify', 'pacific'] },
-      { latin: 'cura, curae', meaning: 'care, concern', derivatives: ['curate', 'curator', 'curative'] }
+      { latin: 'I', meaning: 'ūnus', derivatives: ['unit', 'unify', 'union'] },
+      { latin: 'V', meaning: 'quīnque', derivatives: ['quintet', 'quintuple'] },
+      { latin: 'X', meaning: 'decem', derivatives: ['decimal', 'decade', 'decimate'] },
+      { latin: 'L', meaning: 'quīnquāgintā', derivatives: ['quinquagesimal'] },
+      { latin: 'C', meaning: 'centum', derivatives: ['century', 'cent', 'percent', 'centennial'] },
+      { latin: 'D', meaning: 'quīngentī', derivatives: ['quingentennial'] },
+      { latin: 'M', meaning: 'mīlle', derivatives: ['millennium', 'millimeter', 'mile'] }
     ]
   }
 };
@@ -353,27 +345,67 @@ let currentTopic = localStorage.getItem('latinRootsTopic') || 'colors';
 function createRootCard(root) {
   const card = document.createElement('div');
   card.className = 'root-card';
-  card.innerHTML = `
-    <div class="latin-root">${root.latin}</div>
-    <div class="root-meaning">${root.meaning}</div>
-    <div class="derivatives">
-      ${root.derivatives.map(deriv => `<span class="derivative" data-value="${deriv}">${deriv}<button class="remove-deriv" aria-label="Delete derivative">×</button></span>`).join('')}
-    </div>
-    <div class="reveal-hint">Click to reveal English words</div>
-    <div class="add-derivative">
-      <input class="new-deriv-input" type="text" placeholder="Add your own derivative" aria-label="Add derivative" />
-      <button class="add-deriv-btn" type="button">Add</button>
-    </div>
-    <div class="add-feedback"></div>
-  `;
+  // Add a data-root attribute for CSS targeting
+  if (root.latin.split(',')[0].toLowerCase() === 'albus') {
+    card.setAttribute('data-root', 'albus');
+  }
+  // Color mapping for each color root
+  const colorMap = {
+    albus: '#f5f5f5', // white
+    aureus: '#ffd700', // gold
+    caeruleus: '#3b82f6', // blue
+    cinereus: '#b0b0b0', // ash-gray
+    flavus: '#ffe066', // yellow
+    niger: '#222', // black
+    purpureus: '#a259c6', // purple
+    roseus: '#ffb6c1', // pink
+    ruber: '#e74c3c', // red
+    viridis: '#27ae60' // green
+  };
+  let cardContent = '';
+  cardContent += `<div class="latin-root">${root.latin}</div><div class="root-meaning">${root.meaning}</div>`;
+  cardContent += `<div class="derivatives">${root.derivatives.map(deriv => `<span class="derivative" data-value="${deriv}">${deriv}<button class="remove-deriv" aria-label="Delete derivative">×</button></span>`).join('')}</div>`;
+  cardContent += `<div class="reveal-hint">Click to reveal English words</div>`;
+  cardContent += `<div class="add-derivative"><input class="new-deriv-input" type="text" placeholder="Add your own derivative" aria-label="Add derivative" /><button class="add-deriv-btn" type="button">Add</button></div>`;
+  cardContent += `<div class="add-feedback"></div>`;
+  card.innerHTML = cardContent;
 
   card.addEventListener('click', (event) => {
     const isAddAction = event.target.closest('.add-derivative');
     const isRemoveAction = event.target.closest('.remove-deriv');
     if (isAddAction || isRemoveAction) return;
-
     if (!card.classList.contains('revealed')) {
       card.classList.add('revealed');
+      // Only color the card if in the colors topic
+      if (currentTopic === 'colors') {
+        const colorKey = root.latin.split(',')[0].split(' ')[0].toLowerCase();
+        const revealedColor = colorMap[colorKey] || '#1a4a8b';
+        card.style.background = revealedColor;
+        // Use dark text for light backgrounds, white for others
+        const lightColors = ['albus', 'flavus', 'aureus', 'roseus', 'cinereus'];
+        // Force black text for albus (white)
+        const textColor = colorKey === 'albus' ? '#000' : (lightColors.includes(colorKey) ? '#222' : 'white');
+        card.style.color = textColor;
+        card.style.borderColor = revealedColor;
+        // Also update derivatives chip color for readability
+        const chips = card.querySelectorAll('.derivative');
+        chips.forEach(chip => {
+          if (colorKey === 'albus') {
+            chip.style.background = 'rgba(255,255,255,0.7)';
+            chip.style.color = '#000';
+            chip.style.borderColor = 'rgba(0,0,0,0.1)';
+          } else {
+            chip.style.background = 'rgba(255,255,255,0.7)';
+            chip.style.color = '#222';
+            chip.style.borderColor = 'rgba(0,0,0,0.1)';
+          }
+        });
+        // Also set the derivatives text color for 'albus, albi' to black
+        if (colorKey === 'albus') {
+          const derivativesDiv = card.querySelector('.derivatives');
+          if (derivativesDiv) derivativesDiv.style.color = '#000';
+        }
+      }
       exploredCount++;
       updateStats();
     }
@@ -387,7 +419,7 @@ function createRootCard(root) {
   addBtn.addEventListener('click', () => {
     const value = input.value.trim();
     if (!value) {
-      feedback.textContent = 'Type a derivative before adding.';
+      feedback.textContent = 'Type a derivative before submitting.';
       feedback.style.color = '#b22222';
       return;
     }
@@ -402,23 +434,58 @@ function createRootCard(root) {
       return;
     }
 
-    const newSpan = document.createElement('span');
-    newSpan.className = 'derivative';
-    newSpan.dataset.value = value;
-    newSpan.innerHTML = `${value}<button class="remove-deriv" aria-label="Delete derivative">×</button>`;
-    derivativesContainer.appendChild(newSpan);
+    // Store pending derivative in localStorage for teacher approval
+    const pendingKey = `pending-deriv-${root.latin}`;
+    let pending = JSON.parse(localStorage.getItem(pendingKey) || '[]');
+    pending.push(value);
+    localStorage.setItem(pendingKey, JSON.stringify(pending));
 
-    root.derivatives.push(value);
-    feedback.textContent = 'Added! Great contribution.';
+    feedback.textContent = 'Submitted for teacher approval.';
     feedback.style.color = '#1a4a8b';
     input.value = '';
-
-    if (!card.classList.contains('revealed')) {
-      card.classList.add('revealed');
-      exploredCount++;
-      updateStats();
-    }
   });
+
+  // Teacher approval UI (simple: show pending if present)
+  const pendingKey = `pending-deriv-${root.latin}`;
+  let pending = JSON.parse(localStorage.getItem(pendingKey) || '[]');
+  if (pending.length > 0) {
+    const pendingBox = document.createElement('div');
+    pendingBox.style.marginTop = '10px';
+    pendingBox.style.background = '#fffbe6';
+    pendingBox.style.border = '1px solid #ffe066';
+    pendingBox.style.borderRadius = '8px';
+    pendingBox.style.padding = '8px';
+    pendingBox.innerHTML = `<strong>Pending approval:</strong> ` + pending.map((p, i) => `<span style="margin-right:8px;">${p} <button data-approve="${i}" style="background:#1a4a8b;color:white;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;">Approve</button> <button data-reject="${i}" style="background:#b22222;color:white;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;">Reject</button></span>`).join('');
+    card.appendChild(pendingBox);
+    pendingBox.addEventListener('click', (event) => {
+      if (event.target.dataset.approve !== undefined) {
+        const idx = parseInt(event.target.dataset.approve);
+        const approved = pending[idx];
+        // Add to derivatives
+        const newSpan = document.createElement('span');
+        newSpan.className = 'derivative';
+        newSpan.dataset.value = approved;
+        newSpan.innerHTML = `${approved}<button class="remove-deriv" aria-label="Delete derivative">×</button>`;
+        derivativesContainer.appendChild(newSpan);
+        root.derivatives.push(approved);
+        // Remove from pending
+        pending.splice(idx, 1);
+        localStorage.setItem(pendingKey, JSON.stringify(pending));
+        pendingBox.remove();
+        // Re-render card to update pending UI
+        const newCard = createRootCard(root);
+        card.replaceWith(newCard);
+      } else if (event.target.dataset.reject !== undefined) {
+        const idx = parseInt(event.target.dataset.reject);
+        pending.splice(idx, 1);
+        localStorage.setItem(pendingKey, JSON.stringify(pending));
+        pendingBox.remove();
+        // Re-render card to update pending UI
+        const newCard = createRootCard(root);
+        card.replaceWith(newCard);
+      }
+    });
+  }
 
   derivativesContainer.addEventListener('click', (event) => {
     if (!event.target.matches('.remove-deriv')) return;
@@ -436,6 +503,10 @@ function createRootCard(root) {
 }
 
 function getActiveRoots() {
+  if (!ROOT_SETS[currentTopic] || !Array.isArray(ROOT_SETS[currentTopic].roots)) {
+    currentTopic = 'colors';
+    localStorage.setItem('latinRootsTopic', 'colors');
+  }
   return (ROOT_SETS[currentTopic] || ROOT_SETS.colors).roots;
 }
 
@@ -462,6 +533,10 @@ function populateTopicMenu() {
     select.appendChild(opt);
   });
 
+  if (!ROOT_SETS[currentTopic]) {
+    currentTopic = 'colors';
+    localStorage.setItem('latinRootsTopic', 'colors');
+  }
   select.value = currentTopic;
 }
 
@@ -471,6 +546,10 @@ function renderRoots() {
   exploredCount = 0;
 
   const roots = [...getActiveRoots()].sort(() => Math.random() - 0.5);
+  if (!roots.length) {
+    grid.innerHTML = '<div style="padding:32px;text-align:center;color:#b22222;font-size:1.2em;">No roots found for this topic.</div>';
+    return;
+  }
   roots.forEach(root => grid.appendChild(createRootCard(root)));
 
   setTopicNote();
@@ -498,5 +577,4 @@ init();
 </script>
 
 </body>
-</html></content>
-<parameter name="filePath">c:\Users\Doj05\Desktop\latin-explorer\roots.html
+</html>
