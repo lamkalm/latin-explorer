@@ -5,6 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Graffiti Wall — Latin Explorer</title>
   <style>
+      .topic-section {
+        background: #f0f5e8;
+        border-radius: 12px;
+        padding: 24px 28px 18px 28px;
+        margin-bottom: 32px;
+        border-left: 4px solid #34c759;
+        box-shadow: 0 2px 8px rgba(52,199,89,0.06);
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #topicHeading {
+        font-size: 1.35em;
+        font-weight: 700;
+        color: #1d1d1f;
+        margin-bottom: 10px;
+        letter-spacing: 0.01em;
+        text-align: left;
+      }
+      #topicIntro {
+        color: #6e6e73;
+        margin-bottom: 10px;
+        font-size: 1.05em;
+        text-align: left;
+      }
+      #topicPrompts {
+        margin: 10px 0 10px 18px;
+        padding-left: 0;
+        color: #2c2416;
+        font-size: 1.01em;
+        line-height: 1.7;
+      }
+      #topicPrompts li {
+        margin-bottom: 4px;
+        padding-left: 0.2em;
+      }
+      #topicCta {
+        margin-top: 8px;
+        color: #007aff;
+        font-size: 0.98em;
+        text-align: left;
+      }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -227,9 +269,8 @@
   <h1>Graffiti Wall</h1>
   <p>Write and respond to posts in Latin. Share your thoughts, poetry, or questions with classmates.</p>
 </header>
-
-<section class="topic-of-week">
-  <h2 id="topicHeading">Topic of the Week: Colors</h2>
+<div class="topic-section">
+  <h2 id="topicHeading"></h2>
   <p id="topicIntro">Respond to one or both prompts in Latin on the wall below:</p>
   <ul id="topicPrompts"></ul>
   <p id="topicCta"></p>
@@ -239,6 +280,7 @@
       <select id="topicSelect"></select>
     </label>
   </div>
+</div>
 </section>
 
 <section class="post-form">
@@ -270,23 +312,14 @@ const TOPIC_SETS = {
     ],
     cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin color words to English!'
   },
-  weather: {
-    title: 'Weather',
-    intro: 'Respond to one or both prompts in Latin on the wall below:',
+  numerals: {
+    title: 'Numerals',
+    intro: 'Practice using Roman numerals (I, V, X, L, C, D, M) in Latin! Try writing a number or date.',
     prompts: [
-      { latin: 'Qualis est hodie tempestas apud te?', english: 'What is the weather like where you are today?' },
-      { latin: 'Quod genus tempestatis maxime tibi placet?', english: 'What kind of weather do you like best?' }
+      { latin: 'Scribe numerum tuum natalem Romanis numeris.', english: 'Write your birthday in Roman numerals.' },
+      { latin: 'Quid significat numerus "XIV"?', english: 'What does the number "XIV" mean?' }
     ],
-    cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin weather words to English!'
-  },
-  emotions: {
-    title: 'Emotions',
-    intro: 'Respond to one or both prompts in Latin on the wall below:',
-    prompts: [
-      { latin: 'Quomodo te hodie sentis?', english: 'How are you feeling today?' },
-      { latin: 'Quae res tibi gaudium aut tristitiam dat?', english: 'What gives you joy or sadness?' }
-    ],
-    cta: 'Then, explore <a href="roots.html">Vocabulary Roots</a> to connect Latin emotion words to English!'
+    cta: '<strong>Reference:</strong> I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000.'
   }
 };
 

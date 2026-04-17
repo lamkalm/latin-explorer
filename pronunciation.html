@@ -709,32 +709,24 @@ function renderFlashcardImage(ch, it) {
     return;
   }
 
-  const cached = cardImgCache[title];
-  if (cached) {
-    flashcardImage.innerHTML = `<img src="${cached}" alt="Image for ${it.latin}">`;
-    return;
-  }
+  const imageMap = {
+    'Julius_Caesar': 'images/julius_caesar.jpg',
+    'Rubicon': 'images/rubicon.jpg',
+    'Cicero': 'images/cicero.jpg',
+    'Catiline_Orations': 'images/catiline_orations.png',
+    'Internet': 'images/internet.png',
+    'Nuntii_Latini': null,
+    'Yle': 'images/yle.png',
+    'Urbi_et_Orbi': 'images/urbi_et_orbi.jpg',
+    'Mass_in_the_Catholic_Church': 'images/mass.jpg'
+  };
 
-  flashcardImage.textContent = 'Image loading...';
-  fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title))
-    .then(r => r.json())
-    .then(data => {
-      const src = data.thumbnail?.source;
-      if (!src) {
-        flashcardImage.textContent = 'No image found for this card.';
-        return;
-      }
-      cardImgCache[title] = src;
-      // Avoid race conditions if user quickly changes cards.
-      const current = CHARS[activeChar].items[activeItem];
-      const currentTitle = current.imageWiki || CHARS[activeChar].wiki;
-      if (currentTitle === title) {
-        flashcardImage.innerHTML = `<img src="${src}" alt="Image for ${current.latin}">`;
-      }
-    })
-    .catch(() => {
-      flashcardImage.textContent = 'Unable to load image right now.';
-    });
+  const src = imageMap[title];
+  if (src) {
+    flashcardImage.innerHTML = `<img src="${src}" alt="Image for ${it.latin}">`;
+  } else {
+    flashcardImage.textContent = 'No image found for this card.';
+  }
 }
 
 function defaultPrompt(it) {
@@ -1065,7 +1057,6 @@ async function preloadWiktAudio() {
 
 // ── Wikipedia image fetching ──────────────────────────────────────────────────
 const imgCache = {};
-const cardImgCache = {};
 
 async function fetchWikiImages() {
   for (const ch of CHARS) {

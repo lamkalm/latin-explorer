@@ -534,8 +534,6 @@ body.interlinear-mode .comment-column {
       </div>
       <div class="margin-header-actions">
         <button class="margin-header-btn" onclick="exportNotes()" title="Download notes as JSON">↓ Export</button>
-        <button class="margin-header-btn" onclick="document.getElementById('importNotesInput').click()" title="Load notes from a file">↑ Import</button>
-        <input type="file" id="importNotesInput" accept=".json" onchange="importNotes(event)">
         <span class="comment-count" id="commentCount" style="display:none">0</span>
       </div>
     </div>
@@ -545,9 +543,6 @@ body.interlinear-mode .comment-column {
           <option value="all">All types</option>
           <option value="grammar">Grammar</option>
           <option value="vocabulary">Vocabulary</option>
-          <option value="style">Style/Poetics</option>
-          <option value="culture">Culture/History</option>
-          <option value="translation">Translation choice</option>
         </select>
         <select class="notes-filter" id="lineFilter" title="Filter by Latin line">
           <option value="all">All lines</option>
@@ -569,9 +564,6 @@ body.interlinear-mode .comment-column {
     <select id="popupTag" class="popup-tag-select" title="Choose note type">
       <option value="grammar">Grammar</option>
       <option value="vocabulary">Vocabulary</option>
-      <option value="style">Style/Poetics</option>
-      <option value="culture">Culture/History</option>
-      <option value="translation">Translation choice</option>
     </select>
   </div>
   <div class="popup-actions">
@@ -788,7 +780,7 @@ function loadNotesFromStorage() {
       comments = JSON.parse(stored);
       comments = comments.map(c => {
         if (c && c.answer === 'No AI provider selected.') {
-          return { ...c, answer: 'Awaiting teacher response.' };
+          return { ...c, answer: '' };
         }
         return c;
       });
@@ -822,17 +814,23 @@ function exportNotes() {
     return;
   }
   const now = new Date().toISOString().split('T')[0];
-  const filename = `georgics-notes-${now}.json`;
-  const data = {
-    exported: new Date().toISOString(),
-    text: currentLang === 'en' ? 'English' : 'Latin',
-    notes: comments
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  let txt = `Georgics Margin Notes\nExported: ${now}\nText: ${currentLang === 'en' ? 'English' : 'Latin'}\n\n`;
+  comments.forEach((c, idx) => {
+    txt += `${idx + 1}. Line ${typeof c.lineIndex === 'number' ? c.lineIndex + 1 : '-'} [${c.tag || ''}]\n`;
+    txt += `   Passage: ${c.passage}\n`;
+    txt += `   Question: ${c.question}\n`;
+    if (c.followups && c.followups.length > 0) {
+      c.followups.forEach((f, fidx) => {
+        txt += `      Followup ${fidx + 1}: ${f.question}\n`;
+      });
+    }
+    txt += '\n';
+  });
+  const blob = new Blob([txt], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = `georgics-notes-${now}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1066,13 +1064,12 @@ function downloadTranslations() {
     }
   }
 
-  const payload = {
-    exported: new Date().toISOString(),
-    mode: 'interlinear',
-    translations: items
-  };
-  const filename = `georgics-interlinear-translations-${new Date().toISOString().slice(0, 10)}.json`;
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  let txt = `Georgics Interlinear Translations\nExported: ${new Date().toISOString()}\n\n`;
+  items.forEach((item, idx) => {
+    txt += `${idx + 1}. Latin: ${item.latin}\n   Translation: ${item.translation}\n\n`;
+  });
+  const filename = `georgics-interlinear-translations-${new Date().toISOString().slice(0, 10)}.txt`;
+  const blob = new Blob([txt], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -1194,7 +1191,7 @@ function submitComment() {
     question,
     tag,
     lineIndex: currentLang === 'la' ? selectedLineIndex : null,
-    answer: 'Awaiting teacher response.',
+    answer: '',
     followups: [],
     lang: currentLang
   };
@@ -1215,7 +1212,7 @@ function submitFollowup(cid) {
   const comment = comments.find(c => c.id === cid);
   if (!comment) return;
 
-  const followup = { question, answer: 'Awaiting teacher response.' };
+  const followup = { question, answer: '' };
   comment.followups.push(followup);
   saveNotesToStorage();
   input.value = '';
@@ -1258,11 +1255,11 @@ function renderComments() {
     h += `</div>`;
     h += `<div class="comment-passage">"${escHtml(truncate(c.passage, 90))}"</div>`;
     h += `<div class="comment-question">${escHtml(c.question)}</div>`;
-    h += c.answer ? `<div class="comment-answer">${escHtml(c.answer)}</div>` : `<div class="comment-answer loading">Thinking…</div>`;
+    // Removed answer display
 
     c.followups.forEach(f => {
       h += `<div class="sub-comment"><div class="comment-question">${escHtml(f.question)}</div>`;
-      h += f.answer ? `<div class="comment-answer">${escHtml(f.answer)}</div>` : `<div class="comment-answer loading">Thinking…</div>`;
+      // Removed followup answer display
       h += `</div>`;
     });
 
